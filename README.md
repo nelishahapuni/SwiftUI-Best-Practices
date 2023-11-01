@@ -10,7 +10,29 @@ This documents contains a collection of best practices for SwiftUI, Swift 5 and 
 
 ❕ = Related (similar concepts)
 
-## Optional Downcasting
+## SwiftUI
+
+Best practices to be used in SwiftUI views & related functionality.
+
+### Use Image Asset
+
+This applies to cases where a named image exists in the Assets.
+
+🆗 String may be misspelled. Importing it through extensions is unnecessary boilerplate:
+```swift
+Image("myImage")
+```
+✅ Less mistake-prone:
+```swift
+Image(.myImage)
+```
+*Tags: Image, Assets, SwiftUI*
+
+## Swift
+
+Best practices to be used with Swift 5 or newer.
+
+### Optional Downcasting
 
 ```swift
 let mystery: Any = Bool.random() ? 1 : "One"
