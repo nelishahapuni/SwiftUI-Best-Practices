@@ -1,6 +1,6 @@
-# SwiftUI-Best-Practices
+# SwiftUI Best Practices
 
-This documents contains a collection of best practices for SwiftUI, Swift 5 and iOS 17.
+This documents contains a collection of best practices for SwiftUI, Swift 5+ and iOS 17+.
 
 ⛔️ = Bad Practice (MR/PR won't be approved)
 
@@ -127,3 +127,19 @@ guard mystery is Int else { return }
 ```
 
 *Tags: Optional, Downcasting, Swift 5, If Let, Optional Pattern, Guard*
+
+## 2. Some Opaque Generic Arguments
+
+🆗 Hard to read:
+```swift
+func handle<T: Identifiable>(value: T){
+    /*...*/
+}
+```
+✅ Clean & easy to read:
+```swift
+func handle(value: some Identifiable){
+    /*...*/
+}
+```
+*Tags: Some Keyword, Opaque, Generics, Identifiable*
