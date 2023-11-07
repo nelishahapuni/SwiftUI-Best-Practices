@@ -10,6 +10,14 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
 
 ❕ = Related (similar concepts)
 
+- [SwiftUI](#swiftui)
+    1. [Image Assets](#1-image-assets)
+    2. [Geometry Reader](#2-geometry-reader)
+    3. [Binding Properties Preview](#3-binding-properties-preview)
+- [Swift](#swift)
+    1. [Optional Downcasting](#1-optional-downcasting)
+    2. [Opaque Generic Arguments](#2-opaque-generic-arguments)
+
 # SwiftUI
 
 Best practices to be used in iOS 17 or newer for SwiftUI & related functionality.
@@ -65,7 +73,7 @@ var body: some View {
 ```
 *Tags: Geometry Reader, Background Modifier, OnAppear Modifier, Frame Modifier*
 
-## 3. Binding Properties (Preview)
+## 3. Binding Properties Preview
 
 🆗 When previewing content containing @Binding variables, you may think of creating @State variables within the preview container.
 ```swift
@@ -128,7 +136,7 @@ guard mystery is Int else { return }
 
 *Tags: Optional, Downcasting, Swift 5, If Let, Optional Pattern, Guard*
 
-## 2. Some Opaque Generic Arguments
+## 2. Opaque Generic Arguments
 
 🆗 Hard to read:
 ```swift
