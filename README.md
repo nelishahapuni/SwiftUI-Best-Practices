@@ -17,6 +17,7 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
 - [Swift](#swift)
     1. [Optional Downcasting](#1-optional-downcasting)
     2. [Opaque Generic Arguments](#2-opaque-generic-arguments)
+    3. [Async Await](#3-async-await)
 
 # SwiftUI
 
@@ -140,14 +141,67 @@ guard mystery is Int else { return }
 
 🆗 Hard to read:
 ```swift
-func handle<T: Identifiable>(value: T){
+func handle<T: Identifiable>(value: T) {
     /*...*/
 }
 ```
 ✅ Clean & easy to read:
 ```swift
-func handle(value: some Identifiable){
+func handle(value: some Identifiable) {
     /*...*/
 }
 ```
 *Tags: Some Keyword, Opaque, Generics, Identifiable*
+
+## 3. Async Await
+
+In this example we'll be writing data to Firebase. 
+
+✅ Wait for the action to be completed by using **try await** and make the method throwing, using **async throws**
+
+```swift
+func writeData(databaseURL: String, value: String) async throws {
+    let ref = Database
+        .database(url: databaseURL)
+        .reference()
+        .child("KeyHere")
+
+    try await ref.setValue(value)
+}
+```
+In case there's an error thrown, the view that calls the **writeData** will handle it. Use **Task** to handle asynchronous operations in the UI.
+
+```swift
+import FirebaseDatabase
+
+struct ContentView: View {
+    var body: some View {
+        Button(
+            "Write To Database",
+            action: {
+                Task { // Use "Task" to handle asynchronous operations
+                    do {
+                        try await writeData(databaseURL: "databaseURLHere", value: "MyValue")
+                    } catch {
+                        print(error) // Handle error through UI (alerts, etc.)
+                    }
+                }
+            }
+        )
+    }
+}
+```
+
+❕ Example with fetching data:
+
+```swift
+func fetchData(databaseURL: String) async throws {
+    let ref = Database
+        .database(url: databaseURL)
+        .reference()
+        .child("KeyHere")
+
+    let data = try await ref.getData()
+    // ... Read or use data ...
+}
+```
