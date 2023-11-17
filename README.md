@@ -18,6 +18,7 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     1. [Optional Downcasting](#1-optional-downcasting)
     2. [Opaque Generic Arguments](#2-opaque-generic-arguments)
     3. [Async Await](#3-async-await)
+    4. [Preview Data](#4-preview-data)
 
 # SwiftUI
 
@@ -204,4 +205,49 @@ func fetchData(databaseURL: String) async throws {
     let data = try await ref.getData()
     // ... Read or use data ...
 }
+```
+*Tags: Async, Await, Try, Asynchronous, Fetch, Read, Write, Database, Firebase*
+
+## 4. Preview Data
+
+Preview models quickly using a reusable preview data template. Take this sample **User** model:
+
+```swift
+struct User {
+    let name: String
+    let age: Int
+
+    public init(
+        name: String,
+        age: Int
+    ) {
+        self.name = name
+        self.age = age
+    }
+}
+
+```
+✅ We can create preview data (in debug mode) as such:
+
+```swift
+#if DEBUG
+extension User {
+    static var previewData: User {
+        .init(
+            name: "Bob",
+            age: 31
+        )
+    }
+}
+#endif
+```
+
+We can use the previewData in #Previews as such:
+
+```swift
+#if DEBUG
+#Preview {
+    ContentView(user: .previewData)
+}
+#endif
 ```
