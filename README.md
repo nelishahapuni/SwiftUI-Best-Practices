@@ -19,6 +19,7 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     2. [Opaque Generic Arguments](#2-opaque-generic-arguments)
     3. [Async Await](#3-async-await)
     4. [Preview Data](#4-preview-data)
+    5. [Extend Type Array](#5-extend-type-array)
 
 # SwiftUI
 
@@ -214,13 +215,16 @@ Preview models quickly using a reusable preview data template. Take this sample 
 
 ```swift
 struct User {
-    let name: String
-    let age: Int
+    private let id: Int
+    private let name: String
+    private let age: Int
 
     public init(
+        id: Int,
         name: String,
         age: Int
     ) {
+        self.id = id
         self.name = name
         self.age = age
     }
@@ -234,8 +238,9 @@ struct User {
 extension User {
     static var previewData: User {
         .init(
+            id: 2029320392,
             name: "Bob",
-            age: 31
+            age: 30
         )
     }
 }
@@ -251,3 +256,62 @@ We can use the previewData in #Previews as such:
 }
 #endif
 ```
+
+*Tags: if DEBUG, Preview Data, Reusable, Template, extension, init, model, Preview*
+
+## 5. Extend Type Array
+
+In cases where you need to return an array of a specific/custom type (by adding modifications to the **self**). Lets take a sample **User** model:
+
+```swift
+struct User {
+    private let id: Int
+    private let name: String
+    private let age: Int
+
+    public init(
+        id: Int,
+        name: String,
+        age: Int
+    ) {
+        self.id = id
+        self.name = name
+        self.age = age
+    }
+}
+
+```
+
+✅ Extend **Array** where *Element* is the custom model, in this case **User**. Create a static var array with 10 elements, with slight variation in the id number.
+
+```swift
+extension Array where Element == User {
+    static var userArray: [User] {
+        (0...9).map({
+            .init(
+                id: $0,
+                name: "Bob", 
+                age: 30
+            )
+        })
+    }
+}
+```
+
+❕ In cases where you don't need a unique/iterating element in the array, and exactly the same element will be repeating 10 times, use this:
+
+```swift
+extension Array where Element == User {
+    static var userArray: [User] {
+        [User](
+            repeating: .init(
+                id: 100,
+                name: "Bob", 
+                age: 30
+            ),
+            count: 10
+        )
+    }
+}
+```
+*Tags: Array, Extension, Type*
