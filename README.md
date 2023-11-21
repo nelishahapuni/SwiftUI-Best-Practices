@@ -14,6 +14,7 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     1. [Image Assets](#1-image-assets)
     2. [Geometry Reader](#2-geometry-reader)
     3. [Binding Properties Preview](#3-binding-properties-preview)
+    4. [SwiftUI View in UIKit View Controller](#4-swiftui-view-in-uikit-view-controller)
 - [Swift](#swift)
     1. [Optional Downcasting](#1-optional-downcasting)
     2. [Opaque Generic Arguments](#2-opaque-generic-arguments)
@@ -105,6 +106,49 @@ struct ContentView_Previews: PreviewProvider {
 }
 ```
 *Tags: Binding, Constant, State, Preview, Macros*
+
+## 4. SwiftUI View in UIKit View Controller
+
+```swift
+struct ContentView: View {
+    var body: some View {
+        Text("Hello World")
+    }
+}
+```
+
+Inside the UIKit View Controller:
+
+```swift
+import SwiftUI
+
+override func viewDidLoad() {
+    super.viewDidLoad()
+    
+    // 1 
+    let vc = UIHostingController(rootView: ContentView())
+
+    let contentView = vc.view!
+    contentView.translatesAutoresizingMaskIntoConstraints = false
+    
+    // 2
+    // Add the view controller to the destination view controller.
+    addChild(vc)
+    view.addSubview(contentView)
+    
+    // 3
+    // Create and activate the constraints for the swiftui's view.
+    NSLayoutConstraint.activate([
+        contentView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+        contentView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+    ])
+    
+    // 4
+    // Notify the child view controller that the move is complete.
+    vc.didMove(toParent: self)
+}
+```
+
 # Swift
 
 Best practices to be used with Swift 5 or newer.
