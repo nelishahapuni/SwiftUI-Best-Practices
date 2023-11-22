@@ -21,6 +21,7 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     3. [Async Await](#3-async-await)
     4. [Preview Data](#4-preview-data)
     5. [Extend Type Array](#5-extend-type-array)
+    6. [ViewBuilder vs AnyView](#6-viewbuilder-vs-anyview)
 
 # SwiftUI
 
@@ -359,3 +360,49 @@ extension Array where Element == User {
 }
 ```
 *Tags: Array, Extension, Type*
+
+## 6. ViewBuilder vs AnyView
+
+Using a normal variable (var) that returns AnyView(...) is unnecessarily verbose. You also can't pass variables.
+
+```swift
+private var text: String?
+
+public init(text: String?) {
+    self.text = text
+}
+
+var body: some View {
+    someText
+}
+
+var someText: some View {
+    if let text {
+        return AnyView(Text(text))
+    } else {
+        return AnyView(Text("text is nil"))
+    }
+}
+```
+
+In cases where you have an **if/else** or need to use parameters, use a **@ViewBuilder**.
+
+```swift
+private var text: String?
+
+public init(text: String?) {
+    self.text = text
+}
+
+var body: some View {
+    someText(text)
+}
+
+@ViewBuilder func someText(_ text: String?) -> some View {
+    if let text {
+        Text(text)
+    } else {
+        Text("text is nil")
+    }
+}
+```
