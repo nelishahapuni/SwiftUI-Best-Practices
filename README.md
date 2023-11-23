@@ -15,6 +15,7 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     2. [Geometry Reader](#2-geometry-reader)
     3. [Binding Properties Preview](#3-binding-properties-preview)
     4. [SwiftUI View in UIKit View Controller](#4-swiftui-view-in-uikit-view-controller)
+    5. [Closing Parenthesis Styling](#5-closing-parenthesis-styling)
 - [Swift](#swift)
     1. [Optional Downcasting](#1-optional-downcasting)
     2. [Opaque Generic Arguments](#2-opaque-generic-arguments)
@@ -149,6 +150,29 @@ override func viewDidLoad() {
     vc.didMove(toParent: self)
 }
 ```
+*Tags: UIKit, SwiftUI, Auto Layout, viewDidLoad, constraints*
+
+## 5. Closing Parenthesis Styling
+
+When there is a single parameter (in a function, view, init, etc.) write it on a single line:
+
+```swift
+func doSomething(myString: String) -> String {
+
+}
+```
+
+However when there are 2 or more parameters, write them each on a new line as such:
+
+```swift
+func doSomething(
+    myString1: String,
+    myString2: String,
+) -> String {
+
+}
+```
+
 
 # Swift
 
