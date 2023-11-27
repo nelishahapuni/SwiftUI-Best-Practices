@@ -387,19 +387,9 @@ extension Array where Element == User {
 
 ## 6. ViewBuilder vs AnyView
 
-Using a normal variable (var) that returns AnyView(...) is unnecessarily verbose. You also can't pass variables.
+⛔️ Using a normal *var* that returns AnyView(...) is unnecessarily verbose. You also can't pass variables through parameters.
 
 ```swift
-private var text: String?
-
-public init(text: String?) {
-    self.text = text
-}
-
-var body: some View {
-    someText
-}
-
 var someText: some View {
     if let text {
         return AnyView(Text(text))
@@ -409,7 +399,7 @@ var someText: some View {
 }
 ```
 
-In cases where you have an **if/else** or need to use parameters, use a **@ViewBuilder**.
+✅ In cases where you have an **if/else** or need to use parameters, use a **@ViewBuilder func**.
 
 ```swift
 private var text: String?
