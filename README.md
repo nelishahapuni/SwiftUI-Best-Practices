@@ -16,13 +16,15 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     3. [Binding Properties Preview](#3-binding-properties-preview)
     4. [SwiftUI View in UIKit View Controller](#4-swiftui-view-in-uikit-view-controller)
     5. [Closing Parenthesis Styling](#5-closing-parenthesis-styling)
+    6. [ViewBuilder vs AnyView](#6-viewbuilder-vs-anyview)
 - [Swift](#swift)
     1. [Optional Downcasting](#1-optional-downcasting)
     2. [Opaque Generic Arguments](#2-opaque-generic-arguments)
     3. [Async Await](#3-async-await)
     4. [Preview Data](#4-preview-data)
     5. [Extend Type Array](#5-extend-type-array)
-    6. [ViewBuilder vs AnyView](#6-viewbuilder-vs-anyview)
+    6. [Name Formatter](#6-name-formatter)
+    
 
 # SwiftUI
 
@@ -173,6 +175,41 @@ func doSomething(
 }
 ```
 
+## 6. ViewBuilder vs AnyView
+
+⛔️ Using a normal *var* that returns AnyView(...) is unnecessarily verbose. You also can't pass variables through parameters.
+
+```swift
+var someText: some View {
+    if let text {
+        return AnyView(Text(text))
+    } else {
+        return AnyView(Text("text is nil"))
+    }
+}
+```
+
+✅ In cases where you have an **if/else** or need to use parameters, use a **@ViewBuilder func**.
+
+```swift
+private var text: String?
+
+public init(text: String?) {
+    self.text = text
+}
+
+var body: some View {
+    someText(text)
+}
+
+@ViewBuilder func someText(_ text: String?) -> some View {
+    if let text {
+        Text(text)
+    } else {
+        Text("text is nil")
+    }
+}
+```
 
 # Swift
 
@@ -385,38 +422,33 @@ extension Array where Element == User {
 ```
 *Tags: Array, Extension, Type*
 
-## 6. ViewBuilder vs AnyView
+## 6. Name Formatter
 
-⛔️ Using a normal *var* that returns AnyView(...) is unnecessarily verbose. You also can't pass variables through parameters.
+⛔️ Don't just put the first and last name in a string, as this may not be valid in other regions where names are formatted differently
 
 ```swift
-var someText: some View {
-    if let text {
-        return AnyView(Text(text))
-    } else {
-        return AnyView(Text("text is nil"))
-    }
+let fullName = "\(givenName) \(familyName)"
+```
+
+✅ Use the **PersonNameComponentsFormatter** instead:
+
+```swift
+let personNameFormatter = PersonNameComponentsFormatter()
+
+var fullName: String {
+    var components = PersonNameComponents()
+    components.givenName = givenName
+    components.familyName = familyName
+    return personNameFormatter.string(from: components)
 }
 ```
 
-✅ In cases where you have an **if/else** or need to use parameters, use a **@ViewBuilder func**.
+❕ How to use with localization:
 
 ```swift
-private var text: String?
+let japanLocale = Locale(identifier: "ja_JPN")
+personNameFormatter.locale = japanLocale
 
-public init(text: String?) {
-    self.text = text
-}
-
-var body: some View {
-    someText(text)
-}
-
-@ViewBuilder func someText(_ text: String?) -> some View {
-    if let text {
-        Text(text)
-    } else {
-        Text("text is nil")
-    }
-}
+print(fullName)
 ```
+*Tags: Full Name, Last Name, First Name, Formatting, Localization, Locale, Person Name Components Formatter*
