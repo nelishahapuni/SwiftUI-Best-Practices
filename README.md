@@ -17,6 +17,7 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     4. [SwiftUI View in UIKit View Controller](#4-swiftui-view-in-uikit-view-controller)
     5. [Closing Parenthesis Styling](#5-closing-parenthesis-styling)
     6. [ViewBuilder vs AnyView](#6-viewbuilder-vs-anyview)
+    7. [Preview Macros](#7-preview-macros)
 - [Swift](#swift)
     1. [Optional Downcasting](#1-optional-downcasting)
     2. [Opaque Generic Arguments](#2-opaque-generic-arguments)
@@ -208,6 +209,61 @@ var body: some View {
     } else {
         Text("text is nil")
     }
+}
+```
+
+# 7. Preview Macros
+
+You can quickly preview multiple views using Macros. You can rename the view & set them one-after-another.
+
+```swift
+#Preview("Light landscape", traits: .landscapeRight) {
+    ContentView()
+        .preferredColorScheme(.light)
+}
+
+#Preview("Dark") {
+    ContentView()
+        .preferredColorScheme(.dark)
+}
+```
+
+❕ You can also preview UIKit View Controllers with Macros, to quickly preview data without the need to run the app:
+
+Let's assume you have a UIViewController
+
+```swift
+final class ButtonContainer: UIViewController {
+    private let buttonTitle: String
+    
+    init(buttonTitle: String) {
+        self.buttonTitle = buttonTitle
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    override func viewDidLoad() {
+        let button = UIButton(configuration: .borderedProminent(), primaryAction: nil)
+        button.setTitle(buttonTitle, for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(button)
+        
+        NSLayoutConstraint.activate([
+            button.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            button.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
+```
+
+You can use Macros as follows:
+
+```swift
+#Preview("UIKit Portrait") {
+    ButtonContainer(buttonTitle: "Next Screen")
 }
 ```
 
