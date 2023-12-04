@@ -25,6 +25,7 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     4. [Preview Data](#4-preview-data)
     5. [Extend Type Array](#5-extend-type-array)
     6. [Name Formatter](#6-name-formatter)
+    7. [Safe Subscript](#7-safe-subscript)
     
 
 # SwiftUI
@@ -161,7 +162,7 @@ When there is a single parameter (in a function, view, init, etc.) write it on a
 
 ```swift
 func doSomething(myString: String) -> String {
-
+    // ...
 }
 ```
 
@@ -172,7 +173,7 @@ func doSomething(
     myString1: String,
     myString2: String,
 ) -> String {
-
+    // ...
 }
 ```
 
@@ -306,13 +307,13 @@ guard mystery is Int else { return }
 🆗 Hard to read:
 ```swift
 func handle<T: Identifiable>(value: T) {
-    /*...*/
+    // ...
 }
 ```
 ✅ Clean & easy to read:
 ```swift
 func handle(value: some Identifiable) {
-    /*...*/
+    // ...
 }
 ```
 *Tags: Some Keyword, Opaque, Generics, Identifiable*
@@ -508,3 +509,46 @@ personNameFormatter.locale = japanLocale
 print(fullName)
 ```
 *Tags: Full Name, Last Name, First Name, Formatting, Localization, Locale, Person Name Components Formatter*
+
+## 7. Safe Subscript 
+
+⛔️ If you want to access an item in an array through indexing, you might crash at run-time if the index is out of range:
+
+```swift
+let myArray = ["a","b","c"]
+let index = 10
+let myItem = myArray[10] // this would crash at runtime
+```
+
+✅ Extend **Array** with a **safe** subscript, to check whether the index is within bounds, otherwise return nil
+
+```swift
+extension Array {
+    subscript(safe index: Index) -> Element? {
+        get {
+            return indices.contains(index) ? self[index] : nil
+        }
+        set(newValue) {
+            guard let value = newValue, indices.contains(index) else { return }
+            self[index] = value
+        }
+    }
+}
+```
+1. Use as a optional property: 
+```swift
+let myItem: String? = myArray[safe: 10]
+```
+2. Use with **if let** variable: 
+```swift
+if let myItem = myArray[safe: 10] {
+    // ...
+}
+```
+3. Use with **guard let** variable: 
+```swift
+guard let myItem = myArray[safe: 10] else {
+    // ...
+}
+```
+*Tags: Safe Subscript, Extend Array, Array Index, Optional*
