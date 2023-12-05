@@ -26,6 +26,7 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     5. [Extend Type Array](#5-extend-type-array)
     6. [Name Formatter](#6-name-formatter)
     7. [Safe Subscript](#7-safe-subscript)
+    8. [Guard Self](#8-guard-self)
     
 
 # SwiftUI
@@ -552,3 +553,25 @@ guard let myItem = myArray[safe: 10] else {
 }
 ```
 *Tags: Safe Subscript, Extend Array, Array Index, Optional*
+
+## 8. Guard Self
+
+🆗 We currently write the **self** with optional chaining:
+
+```swift
+publisher.sink { [weak self] newValue in
+    self?.doSomething(with: newValue)
+}
+.store(in: &cancellables)
+```
+
+✅ You can guard the **self** and ommit it from the beginning. Can also be written as **self.doSomething(with: newValue)** but ommitting **self** is more concise.
+
+```swift
+publisher.sink { [weak self] newValue in
+    guard let self else { return }
+    doSomething(with: newValue) 
+}
+.store(in: &cancellables)
+```
+*Tags: Guard Let, Weak Self, Closures, Callbacks, Publisher, Combine*
