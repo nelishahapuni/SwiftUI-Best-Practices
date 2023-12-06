@@ -18,6 +18,8 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     5. [Closing Parenthesis Styling](#5-closing-parenthesis-styling)
     6. [ViewBuilder vs AnyView](#6-viewbuilder-vs-anyview)
     7. [Preview Macros](#7-preview-macros)
+    8. [Tint Images](#8-tint-images)
+
 - [Swift](#swift)
     1. [Optional Downcasting](#1-optional-downcasting)
     2. [Opaque Generic Arguments](#2-opaque-generic-arguments)
@@ -267,6 +269,16 @@ You can use Macros as follows:
 #Preview("UIKit Portrait") {
     ButtonContainer(buttonTitle: "Next Screen")
 }
+```
+*Tags: Preview, Preview Macros, UIKit, View Controller, UIViewController*
+
+## 8. Tint Images
+
+Suppose you want to tint a symbol Image. You need to set the *renderingMode* to *template* and *foregroundStyle* to the color of choice.
+```swift
+Image(systemName: "checkmark.circle.fill")
+    .renderingMode(.template)
+    .foregroundStyle(.red)
 ```
 
 # Swift
