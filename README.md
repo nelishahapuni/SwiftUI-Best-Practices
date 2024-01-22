@@ -29,6 +29,7 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     6. [Name Formatter](#6-name-formatter)
     7. [Safe Subscript](#7-safe-subscript)
     8. [Guard Self](#8-guard-self)
+    9. [If Nesting](#9-if-nesting)
     
 
 # SwiftUI
@@ -587,3 +588,26 @@ publisher.sink { [weak self] newValue in
 .store(in: &cancellables)
 ```
 *Tags: Guard Let, Weak Self, Closures, Callbacks, Publisher, Combine*
+
+## 9. If Nesting
+
+⛔️ Nesting many **If** or **If Let** statements is difficult to read:
+
+```swift
+if let value = value {
+    if value < 10 {
+        //... do something
+    }
+}
+```
+
+✅ Instead, you can separate **If** or **If Let** statements with commas:
+
+```swift
+if let value = value,
+    value < 10 {
+    //... do something
+}
+```
+
+*Tags: If, If Let, Nesting, Multiple Ifs, Conditional Binding*
