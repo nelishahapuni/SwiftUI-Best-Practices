@@ -19,6 +19,7 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     6. [ViewBuilder vs AnyView](#6-viewbuilder-vs-anyview)
     7. [Preview Macros](#7-preview-macros)
     8. [Tint Images](#8-tint-images)
+    9. [Async Image](#9-async-image)
 
 - [Swift](#swift)
     1. [Optional Downcasting](#1-optional-downcasting)
@@ -281,6 +282,15 @@ Image(systemName: "checkmark.circle.fill")
     .renderingMode(.template)
     .foregroundStyle(.red)
 ```
+*Tags: Tint, Color, SF Symbols, Vector, Image*
+
+## 9. Async Image
+
+Download & display an image from a URL using async image:
+```swift
+AsyncImage(url: URL(string: "https://your_image_url_address"))
+```
+*Tags: Async, Image, URL, Download*
 
 # Swift
 
