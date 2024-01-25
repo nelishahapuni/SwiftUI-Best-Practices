@@ -20,6 +20,7 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     7. [Preview Macros](#7-preview-macros)
     8. [Tint Images](#8-tint-images)
     9. [Async Image](#9-async-image)
+    10. [Repeat Element](#10-repeat-element)
 
 - [Swift](#swift)
     1. [Optional Downcasting](#1-optional-downcasting)
@@ -291,6 +292,30 @@ Download & display an image from a URL using async image:
 AsyncImage(url: URL(string: "https://your_image_url_address"))
 ```
 *Tags: Async, Image, URL, Download*
+
+## 10. Repeat Element
+
+Use **RepeatElement** to create the number of columns.
+
+```swift
+private var columns: [GridItem] = []
+
+public init(
+    numberOfColumns: Int = 3,
+    columnSpacing: CGFloat = 12,
+) {
+    columns.append(
+        contentsOf: repeatElement(
+            GridItem(
+                .flexible(),
+                spacing: columnSpacing
+                ),
+            count: numberOfColumns
+        )
+    )
+}
+```
+*Tags: Array, Repeat Element, Grid Item, Spacing, Columns, Rows*
 
 # Swift
 
