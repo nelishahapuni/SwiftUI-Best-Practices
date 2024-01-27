@@ -21,6 +21,7 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     8. [Tint Images](#8-tint-images)
     9. [Async Image](#9-async-image)
     10. [Repeat Element](#10-repeat-element)
+    11. [State Private](#11-state-private)
 
 - [Swift](#swift)
     1. [Optional Downcasting](#1-optional-downcasting)
@@ -316,6 +317,14 @@ public init(
 }
 ```
 *Tags: Array, Repeat Element, Grid Item, Spacing, Columns, Rows*
+
+## 11. State Private
+
+Since @State variables should only be modified within the current scope, it's best to mark them as private:
+
+```swift
+@State private var score = 0
+```
 
 # Swift
 
