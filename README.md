@@ -22,6 +22,7 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     9. [Async Image](#9-async-image)
     10. [Repeat Element](#10-repeat-element)
     11. [State Private](#11-state-private)
+    12. [Platform Customizations](#12-platform-customizations)
 
 - [Swift](#swift)
     1. [Optional Downcasting](#1-optional-downcasting)
@@ -325,6 +326,54 @@ Since @State variables should only be modified within the current scope, it's be
 ```swift
 @State private var score = 0
 ```
+*Tags: Private, Encapsulation, State Vars*
+
+## 12. Platform Customizations
+
+If you want to add platform-specific modifications, you can use platform-specific extensions:
+
+```swift
+extension View {
+    func iOS<Content: View>(_ modifier: (Self) -> Content) -> some View {
+        #if os(iOS)
+        return modifier(self)
+        #else
+        return self
+        #endif
+    }
+}
+
+extension View {
+    func macOS<Content: View>(_ modifier: (Self) -> Content) -> some View {
+        #if os(macOS)
+        return modifier(self)
+        #else
+        return self
+        #endif
+    }
+}
+
+extension View {
+    func tvOS<Content: View>(_ modifier: (Self) -> Content) -> some View {
+        #if os(tvOS)
+        return modifier(self)
+        #else
+        return self
+        #endif
+    }
+}
+
+extension View {
+    func watchOS<Content: View>(_ modifier: (Self) -> Content) -> some View {
+        #if os(watchOS)
+        return modifier(self)
+        #else
+        return self
+        #endif
+    }
+}
+```
+*Tags: Extensions, Customizaton, iOS, macOS, tvOS, watchOS*
 
 # Swift
 
