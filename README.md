@@ -34,6 +34,8 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     7. [Safe Subscript](#7-safe-subscript)
     8. [Guard Self](#8-guard-self)
     9. [If Nesting](#9-if-nesting)
+
+- [Resources](#resources)
     
 
 # SwiftUI
@@ -704,3 +706,7 @@ if let value = value,
 ```
 
 *Tags: If, If Let, Nesting, Multiple Ifs, Conditional Binding*
+
+# Resources
+
+- Swift Style Guide (Google) - https://google.github.io/swift/#file-comments
