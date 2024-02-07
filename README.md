@@ -12,7 +12,7 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
 
 - [SwiftUI](#swiftui)
     1. [Image Assets](#1-image-assets)
-    2. [Geometry Reader](#2-geometry-reader)
+    2. [Custom Modifiers](#2-custom-modifiers)
     3. [Binding Properties Preview](#3-binding-properties-preview)
     4. [SwiftUI View in UIKit View Controller](#4-swiftui-view-in-uikit-view-controller)
     5. [Closing Parenthesis Styling](#5-closing-parenthesis-styling)
@@ -60,38 +60,33 @@ Image(.myImage)
 
 *Tags: Image, Assets, ImageResource, SwiftUI*
 
-## 2. Geometry Reader
+## 2. Custom Modifiers
 
-⛔️ When using geometry reader, do not put the entire view inside it. 
-
+You can create custom reusable modifiers:
 ```swift
-GeometryReader { gr in
-    MyView()
-        .frame(width: gr.size.width, height: gr.size.height)
+struct PrimaryLabel: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .padding()
+            .background(.black)
+            .foregroundStyle(.white)
+            .font(.largeTitle)
+            .cornerRadius(10)
+    }
 }
 ```
 
-✅ Instead, apply a *.background* modifier which contains a geometry reader, which in turn contains a clear background. Use *.onAppear* and calculate the width and/or height of the clear background. Store these values in @State properties and apply them to the frame's width and/or height.
-
+✅ And you can use it as such:
 ```swift
-@State private var width: CGFloat = 0.0
-@State private var height: CGFloat = 0.0
-
-var body: some View {
-    MyView()
-        .frame(width: width, height: height) // Apply the width & height 
-        .background {
-            GeometryReader { gr in
-                Color.clear
-                    .onAppear {
-                        width = gr.size.width // Set width
-                        height = gr.size.height // Set height
-                    }
-            }
-        }
+struct ContentView: View {
+    var body: some View {
+        Text("Hello World")
+            .modifier(PrimaryLabel())
+    }
 }
 ```
-*Tags: Geometry Reader, Background Modifier, OnAppear Modifier, Frame Modifier*
+
+*Tags: Custom, Modifiers, Reusable*
 
 ## 3. Binding Properties Preview
 
@@ -710,3 +705,4 @@ if let value = value,
 # Resources
 
 - Swift Style Guide (Google) - https://google.github.io/swift/#file-comments
+- SwiftUI tips and tricks - https://www.hackingwithswift.com/quick-start/swiftui/swiftui-tips-and-tricks 
