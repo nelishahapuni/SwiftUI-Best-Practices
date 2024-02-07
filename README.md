@@ -34,6 +34,7 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     7. [Safe Subscript](#7-safe-subscript)
     8. [Guard Self](#8-guard-self)
     9. [If Nesting](#9-if-nesting)
+    10. [Comparing Strings](#10-comparing-strings)
 
 - [Resources](#resources)
     
@@ -702,7 +703,38 @@ if let value = value,
 
 *Tags: If, If Let, Nesting, Multiple Ifs, Conditional Binding*
 
+## 10. Comparing Strings
+
+⛔️ This is not the most efficient way to compare case-sensitive strings:
+
+```swift
+let searchQuery = "cafe"
+let databaseValue = "Cafe"
+
+if searchQuery.lowercased() == databaseValue.lowercased() {
+    // ... do something
+}
+```
+
+✅ Instead, use this is a much better approach:
+
+```swift
+let searchQuery = "cafe"
+let databaseValue = "Café"
+
+let comparisonResult = searchQuery.compare(
+    databaseValue,
+    options: [.caseInsensitive, .diacriticInsensitive]
+)
+if comparisonResult == .orderedSame {
+    // ... do something 
+}
+```
+
+*Tags: Strings, Upper Case, Lower Case, Case Sensitive, Comparison, Diacritic Insensitive*
+
 # Resources
 
 - Swift Style Guide (Google) - https://google.github.io/swift/#file-comments
 - SwiftUI tips and tricks - https://www.hackingwithswift.com/quick-start/swiftui/swiftui-tips-and-tricks 
+- Vincent Pradeilles (Youtube Tutorials, Tips & Tricks) - https://www.youtube.com/@v_pradeilles 
