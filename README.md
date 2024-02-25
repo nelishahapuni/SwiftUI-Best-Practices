@@ -23,6 +23,8 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     10. [Repeat Element](#10-repeat-element)
     11. [State Private](#11-state-private)
     12. [Platform Customizations](#12-platform-customizations)
+    13. [WebView](#13-webview)
+    14. [EnvironmentObject & Singleton](#environmentobject--singleton)
 
 - [Swift](#swift)
     1. [Optional Downcasting](#1-optional-downcasting)
@@ -35,6 +37,7 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     8. [Guard Self](#8-guard-self)
     9. [If Nesting](#9-if-nesting)
     10. [Comparing Strings](#10-comparing-strings)
+    11. [JavaScript Functions](11-javascript-functions)
 
 - [Resources](#resources)
     
@@ -372,6 +375,88 @@ extension View {
 }
 ```
 *Tags: Extensions, Customizaton, iOS, macOS, tvOS, watchOS*
+
+## 13. WebView
+
+### Open a URL in Safari
+```swift
+Link("My Website", destination: URL(string: "https://mywebsite.com")!)
+```
+
+### WKWebView in SwiftUI using UIViewRepresentable
+First create the UIViewRepresentable:
+
+```swift
+import SwiftUI
+import WebKit
+
+struct WebView: UIViewRepresentable {
+    // 1
+    let url: URL
+    // 2
+    func makeUIView(context: Context) -> WKWebView {
+        return WKWebView()
+    }
+    // 3
+    func updateUIView(_ webView: WKWebView, context: Context) {
+        let request = URLRequest(url: url)
+        webView.load(request)
+    }
+}
+```
+Then you can use it as a normal view in SwiftUI:
+```swift
+struct ContentView: View {
+    // 1
+    @State private var isPresentWebView = false
+
+    var body: some View {
+        Button("Open WebView") {
+            // 2 
+            isPresentWebView = true
+        }
+        .sheet(isPresented: $isPresentWebView) {
+            NavigationStack {
+                // 3 Here is the web view
+                WebView(url: URL(string: "https://mywebsite.com")!)
+                    .ignoresSafeArea()
+                    .navigationTitle("My Website")
+                    .navigationBarTitleDisplayMode(.inline)
+            }
+        }
+    }
+}
+```
+*Tags: WebView, SwiftUI, UIViewRepresentable, Website, Link, URL*
+
+## 14. EnvironmentObject & Singleton
+
+If you need to use a Manager for the Location, User Defaults, Notifications, etc. use a signleton:
+
+```swift
+class UserSettings: ObservableObject {
+    @Published var username: String = "Guest"
+}
+```
+Then if you need to interact with the View, use an Environment Object:
+
+```swift
+struct ContentView: View {
+@EnvironmentObject var settings: UserSettings
+
+var body: some View {
+        Text("Hello, \(settings.username)")
+    }
+}
+
+struct RootView: View {
+    var body: some View {
+        ContentView()
+            .environmentObject(UserSettings())
+    }
+}
+```
+*Tags: Environment Object, Obserable, Singleton,*
 
 # Swift
 
@@ -732,6 +817,50 @@ if comparisonResult == .orderedSame {
 ```
 
 *Tags: Strings, Upper Case, Lower Case, Case Sensitive, Comparison, Diacritic Insensitive*
+
+## 11. JavaScript Functions
+
+### Receive Parameters from WebView
+
+```swift
+func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+    let navigationRequestURL = navigationAction.request.url
+
+    if let scheme = navigationRequestURL?.scheme,
+        scheme == "myappscheme" {
+        guard let params = navigationRequestURL?.query else {
+            // no params
+            decisionHandler(.cancel)
+            return
+        }
+        // Parse parameters 
+        let paramsArray = params.components(separatedBy: "=")
+
+        if paramsArray[safe: 0] == "paramsArrayIdentifier" { // if there are multiple params
+            // Parse parameters - number of incoming parameters (array length) should be known
+            if let someParams = paramsArray[safe: 1]?.components(separatedBy: "&") {
+                doSomethingWithParams(param1: someParams[safe: 0],
+                                        param2: someParams[safe: 1],
+                                        param3: someParams[safe: 2],
+                                        param4: someParams[safe: 3])
+            } else if paramsArray[safe: 0] == "singleParamName" {
+                doSomething()
+                decisionHandler(.allow)
+                return
+            }
+        }
+         decisionHandler(.cancel)
+            return
+    }
+    decisionHandler(.allow)
+}
+```
+
+### Call JS function from webview with .evaluateJavaScript(...)
+```swift
+myWebView.evaluateJavaScript("myJSFunc(\"\(data)\",\"\(success)\",\"\(status)\")", completionHandler: nil)
+```
+*Tags: WebView, JS, JavaScript, Website*
 
 # Resources
 
