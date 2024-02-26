@@ -25,6 +25,7 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     12. [Platform Customizations](#12-platform-customizations)
     13. [WebView](#13-webview)
     14. [EnvironmentObject & Singleton](#environmentobject--singleton)
+    15. [Animations](#animations)
 
 - [Swift](#swift)
     1. [Optional Downcasting](#1-optional-downcasting)
@@ -456,7 +457,27 @@ struct RootView: View {
     }
 }
 ```
-*Tags: Environment Object, Obserable, Singleton,*
+*Tags: Environment Object, Observable, Singleton*
+
+## Animations
+
+Scaling animations with a state value of the scale, effect, and animation.
+```swift
+struct ContentView: View {
+    @State private var scale = 1.0
+
+    var body: some View {
+        Button("Press here") {
+            scale += 1
+        }
+        .scaleEffect(scale)
+        .animation(.easeIn, value: scale)
+    }
+}
+```
+
+*Tags: Animation, Transition, Scale, Slide, Effect*
+
 
 # Swift
 
