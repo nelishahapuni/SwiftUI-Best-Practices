@@ -295,6 +295,12 @@ Download & display an image from a URL using async image:
 ```swift
 AsyncImage(url: URL(string: "https://your_image_url_address"))
 ```
+
+Use a custom made CachedAsyncImage to cache images ([CachdAsyncImage Package](https://github.com/lorenzofiamingo/swiftui-cached-async-image))
+
+```swift
+CachedAsyncImage(urlRequest: logoURLRequest, urlCache: .imageCache)
+```
 *Tags: Async, Image, URL, Download*
 
 ## 10. Repeat Element
