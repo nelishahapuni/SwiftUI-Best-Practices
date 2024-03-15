@@ -24,8 +24,9 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     11. [State Private](#11-state-private)
     12. [Platform Customizations](#12-platform-customizations)
     13. [WebView](#13-webview)
-    14. [EnvironmentObject & Singleton](#environmentobject--singleton)
-    15. [Animations](#animations)
+    14. [EnvironmentObject & Singleton](#14-environmentobject--singleton)
+    15. [Animations](#15-animations)
+    16. [Firebase Observed Object](#16-firebase-observed-object)
 
 - [Swift](#swift)
     1. [Optional Downcasting](#1-optional-downcasting)
@@ -38,7 +39,7 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     8. [Guard Self](#8-guard-self)
     9. [If Nesting](#9-if-nesting)
     10. [Comparing Strings](#10-comparing-strings)
-    11. [JavaScript Functions](11-javascript-functions)
+    11. [JavaScript Functions](#11-javascript-functions)
 
 - [Resources](#resources)
     
@@ -465,7 +466,7 @@ struct RootView: View {
 ```
 *Tags: Environment Object, Observable, Singleton*
 
-## Animations
+## 15. Animations
 
 Scaling animations with a state value of the scale, effect, and animation.
 ```swift
@@ -481,9 +482,66 @@ struct ContentView: View {
     }
 }
 ```
-
 *Tags: Animation, Transition, Scale, Slide, Effect*
 
+## 16. Firebase Observed Object
+
+How to fetch data from firebase & present it in SwiftUI
+
+```swift
+struct Book: Identifiable {
+  var id: String = UUID().uuidString
+  var title: String
+  var author: String
+}
+```
+
+```swift
+import Foundation
+import FirebaseFirestore
+ 
+class BooksViewModel: ObservableObject {
+  @Published var books = [Book]() // Note: @Published properties are always public
+  
+  private var db = Firestore.firestore()
+  
+  func fetchData() {
+    db.collection("books").addSnapshotListener { [weak self] (snapshot, error) in
+      guard let documents = snapshot?.documents { return }
+ 
+      self?.books = documents.map { documentSnapshot -> Book in
+        let data = queryDocumentSnapshot.data()
+        let title = data["title"] as? String ?? ""
+        let author = data["author"] as? String ?? ""
+ 
+        return Book(id: .init(), title: title, author: author)
+      }
+    }
+  }
+}
+```
+
+```swift
+struct BooksListView: View {
+  @ObservedObject private var viewModel = BooksViewModel() // 1. Observed View Model
+  
+  var body: some View {
+    NavigationView {
+      List(viewModel.books) { book in // 2. Access property 'books' in the View Model
+        VStack(alignment: .leading) {
+          Text(book.title)
+          Text(book.author)
+        }
+      }
+      .onAppear() { // 3. Fetch the data from Firebase
+        viewModel.fetchData()
+      }
+    }
+  }
+}
+```
+
+*Tags: Observed Object, Firebase, Realtime Database, View Model*
 
 # Swift
 
