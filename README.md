@@ -27,6 +27,7 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     14. [EnvironmentObject & Singleton](#14-environmentobject--singleton)
     15. [Animations](#15-animations)
     16. [Firebase Observed Object](#16-firebase-observed-object)
+    17. [Set Environment Object](#16-set-environment-object)
 
 - [Swift](#swift)
     1. [Optional Downcasting](#1-optional-downcasting)
@@ -542,6 +543,67 @@ struct BooksListView: View {
 ```
 
 *Tags: Observed Object, Firebase, Realtime Database, View Model*
+
+## 17. Set Environment Object
+
+⛔️ You cannot set the value of an environment variable directly, you'll get a compiler error since it's a 'get-only' property.
+
+```swift
+struct ContentView: View {
+    @Environment(\.environmentFlag) private var environmentFlag
+    
+    var body: some View {
+        Button {
+            environmentFlag = true
+        } label: {
+            Text("Make flag true!")
+        }
+    }
+}
+```
+
+✅ Instead, use a @State **localFlag** variable and pass its value in the environment var.
+
+```swift
+struct ContentView: View {
+    @State private var localFlag = false
+    @Environment(\.environmentFlag) private var environmentFlag
+    
+    var body: some View {
+        Button {
+            myFlag = true
+        } label: {
+            Text("Make flag true!")
+        }
+        .environment(\.environmentFlag, localFlag)
+    }
+}
+```
+
+❕ Even better to use a @Published variable inside a ObservableObject viewModel, and access it through a @ObservedObject.
+
+```swift
+class MyViewModel: ObservableObject {
+    @Published var localFlag = false
+}
+
+struct ContentView: View {
+    @ObservedObject var viewModel: MyViewModel
+    @Environment(\.environmentFlag) var environmentFlag
+    
+    var body: some View {
+        Button {
+            myFlag = true
+        } label: {
+            Text("Make flag true!")
+        }
+        .environment(\.environmentFlag, viewModel.localFlag)
+    }
+}
+```
+
+*Tags: Environment, Flag, Boolean, Get-Only, Setting, Published, ObservedObject, Observable, ViewModel*
+
 
 # Swift
 
