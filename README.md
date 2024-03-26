@@ -28,6 +28,7 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     15. [Animations](#15-animations)
     16. [Firebase Observed Object](#16-firebase-observed-object)
     17. [Set Environment Object](#16-set-environment-object)
+    18. [Navigation Path Router](#17-navigation-path-router)
 
 - [Swift](#swift)
     1. [Optional Downcasting](#1-optional-downcasting)
@@ -604,6 +605,140 @@ struct ContentView: View {
 
 *Tags: Environment, Flag, Boolean, Get-Only, Setting, Published, ObservedObject, Observable, ViewModel*
 
+## 18. Navigation Path Router
+
+Inside the **Destination** enum, we define all the possible navigation destinations.
+
+```swift
+final class Router: ObservableObject {
+    
+    public enum Destination: Codable, Hashable { 
+        case livingroom
+        case bedroom(owner: String)
+    }
+    
+    @Published var navPath = NavigationPath()
+    
+    func navigate(to destination: Destination) {
+        navPath.append(destination)
+    }
+    
+    func navigateBack() {
+        navPath.removeLast()
+    }
+    
+    func navigateToRoot() {
+        navPath.removeLast(navPath.count)
+    }
+}
+```
+
+Then, we need to create a Route instance from our application's entry point and inject it as an environment object to be used in every view.
+
+```swift
+@main
+struct RoutingApp: App {
+    @ObservedObject var router = Router()
+    
+    var body: some Scene {
+        WindowGroup {
+            NavigationStack(path: $router.navPath) {
+                HomeView()
+                .navigationDestination(for: Router.Destination.self) { destination in
+                    switch destination {
+                    case .livingroom:
+                        LivingroomView()
+                    case .bedroom(let owner):
+                        BedroomView(ownerName: owner)
+                    }
+                }
+            }
+            .environmentObject(router)
+        }
+    }
+}
+```
+
+Finally, we need to get the router instance from the views and use it whenever we need it.
+
+Example in Home View:
+
+```swift
+struct HomeView: View {
+
+    @EnvironmentObject var router: Router
+    var ownerName: String
+
+    var body: some View {
+        VStack {
+            Button {
+                router.navigate(to: .livingroom)
+            } label: {
+                Text("Go to Living room")
+            }
+            Button {
+                router.navigate(to: .bedroom(owner: "John"))
+            } label: {
+                Text("Go to John's Bedroom")
+            }
+            Button {
+                router.navigateBack()
+            } label: {
+                Text("Go back")
+            }
+        }
+    }
+}
+```
+
+Example in Living Room View:
+
+```swift
+struct LivingRoomView: View {
+
+    @EnvironmentObject var router: Router
+    var ownerName: String
+
+    var body: some View {
+        VStack {
+            Button {
+                router.navigate(to: .bedroom(owner: "Jane"))
+            } label: {
+                Text("Go to Jane's room")
+            }
+            Button {
+                router.navigateBack()
+            } label: {
+                Text("Go back")
+            }
+        }
+    }
+}
+```
+
+Example in Bedroom View:
+
+```swift
+struct BedroomView: View {
+
+    @EnvironmentObject var router: Router
+
+    var body: some View {
+        VStack {
+            Button {
+                router.removeLast(navPath.count)
+            } label: {
+                Text("Go back to Home")
+            }
+            Button {
+                router.navigateBack()
+            } label: {
+                Text("Go back")
+            }
+        }
+    }
+}
+```
 
 # Swift
 
