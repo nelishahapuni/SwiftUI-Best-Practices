@@ -27,8 +27,9 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     14. [EnvironmentObject & Singleton](#14-environmentobject--singleton)
     15. [Animations](#15-animations)
     16. [Firebase Observed Object](#16-firebase-observed-object)
-    17. [Set Environment Object](#16-set-environment-object)
-    18. [Navigation Path Router](#17-navigation-path-router)
+    17. [Set Environment Object](#17-set-environment-object)
+    18. [Navigation Path Router](#18-navigation-path-router)
+    19. [Animating Numbers](#19-animating-numbers)
 
 - [Swift](#swift)
     1. [Optional Downcasting](#1-optional-downcasting)
@@ -739,6 +740,32 @@ struct BedroomView: View {
     }
 }
 ```
+
+*Tags: Environment, Object, Router, Coordinator, Navigation, Stack*
+
+## 19. Animating Numbers
+
+Add a fancy animation when changing numbers:
+
+```swift
+@State private var number: Int = 100
+
+var body: some View {
+    VStack {
+        Text(String(number))
+            .contentTransition(.numericText())
+            .foregrounStyle(.red)
+        Button("Random") {
+            withAnimation {
+                number = .random(in: 0 ..< 100)
+            }
+        }
+    }
+}
+```
+
+*Tags: Animation, Effect, Number, Integers*
+
 
 # Swift
 
