@@ -44,6 +44,9 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     10. [Comparing Strings](#10-comparing-strings)
     11. [JavaScript Functions](#11-javascript-functions)
 
+- [Tips]
+    1. [Remove Cached SwiftUI Previews](#1-remove-cached-swiftui-previews)
+
 - [Resources](#resources)
     
 
@@ -1171,8 +1174,17 @@ myWebView.evaluateJavaScript("myJSFunc(\"\(data)\",\"\(success)\",\"\(status)\")
 ```
 *Tags: WebView, JS, JavaScript, Website*
 
+# Tips
+
+## 1. Remove Cached SwiftUI Previews
+
+Go to terminal and type:
+
+**xcrun simctl --set previews delete all**
+
 # Resources
 
 - Swift Style Guide (Google) - https://google.github.io/swift/#file-comments
 - SwiftUI tips and tricks - https://www.hackingwithswift.com/quick-start/swiftui/swiftui-tips-and-tricks 
 - Vincent Pradeilles (Youtube Tutorials, Tips & Tricks) - https://www.youtube.com/@v_pradeilles 
+
