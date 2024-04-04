@@ -30,6 +30,7 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     17. [Set Environment Object](#17-set-environment-object)
     18. [Navigation Path Router](#18-navigation-path-router)
     19. [Animating Numbers](#19-animating-numbers)
+    20. [Format Currency](#20-format-currency)
 
 - [Swift](#swift)
     1. [Optional Downcasting](#1-optional-downcasting)
@@ -44,8 +45,10 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     10. [Comparing Strings](#10-comparing-strings)
     11. [JavaScript Functions](#11-javascript-functions)
 
-- [Tips]
+- [Tips](#tips)
     1. [Remove Cached SwiftUI Previews](#1-remove-cached-swiftui-previews)
+    2. [Prevent Dismiss Bottom Sheet](#2-prevent-dismiss-bottom-sheet)
+    3. [Display Device Info SwiftUI](#30-display-device-info)
 
 - [Resources](#resources)
     
@@ -769,6 +772,11 @@ var body: some View {
 
 *Tags: Animation, Effect, Number, Integers*
 
+## Format Currency
+
+```swift
+Text(1000000, format: .currency(code: "USD")) // this will be formatted to 1,000,000.00
+```
 
 # Swift
 
@@ -1181,6 +1189,23 @@ myWebView.evaluateJavaScript("myJSFunc(\"\(data)\",\"\(success)\",\"\(status)\")
 Go to terminal and type:
 
 **xcrun simctl --set previews delete all**
+
+## 2. Prevent Dismiss Bottom Sheet
+
+You can prevent users from dismissing a bottom sheet by swiping down with the modifier:
+
+```swift
+.interactiveDismissDisabled()
+```
+
+## 3. Display Device Info
+
+```swift
+Text(UIDevice.current.systemName) // iOS
+Text(UIDevice.current.systemVersion) // 17.4
+Text(UIDevice.current.model) // iPhone
+Text(UIDevice.current.name) // iPhone 15 Pro Max
+```
 
 # Resources
 
