@@ -1205,6 +1205,9 @@ Text(UIDevice.current.systemName) // iOS
 Text(UIDevice.current.systemVersion) // 17.4
 Text(UIDevice.current.model) // iPhone
 Text(UIDevice.current.name) // iPhone 15 Pro Max
+
+Text(.now, style: .time) // 8:30 PM
+Text(.now, style: .date) // 27 January 2024
 ```
 
 # Resources
