@@ -44,6 +44,7 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     9. [If Nesting](#9-if-nesting)
     10. [Comparing Strings](#10-comparing-strings)
     11. [JavaScript Functions](#11-javascript-functions)
+    12. [Make Binding Hashable And Equitable](#12-make-binding-hashable-and-equitable)
 
 - [Tips](#tips)
     1. [Remove Cached SwiftUI Previews](#1-remove-cached-swiftui-previews)
@@ -1139,8 +1140,7 @@ if comparisonResult == .orderedSame {
 *Tags: Strings, Upper Case, Lower Case, Case Sensitive, Comparison, Diacritic Insensitive*
 
 ## 11. JavaScript Functions
-
-### Receive Parameters from WebView
+Receive Parameters from WebView
 
 ```swift
 func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
@@ -1173,6 +1173,22 @@ func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigatio
             return
     }
     decisionHandler(.allow)
+}
+```
+
+## 12. Make Binding Hashable And Equitable
+
+```swift
+extension Binding: Equatable where Value: Equatable {
+    public static func == (lhs: Binding<Value>, rhs: Binding<Value>) -> Bool {
+        lhs.wrappedValue == rhs.wrappedValue
+    }
+}
+
+extension Binding: Hashable where Value: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(self.wrappedValue.hashValue)
+    }
 }
 ```
 
