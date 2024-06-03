@@ -31,6 +31,7 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     18. [Navigation Path Router](#18-navigation-path-router)
     19. [Animating Numbers](#19-animating-numbers)
     20. [Format Currency](#20-format-currency)
+    21. [Custom Property Wrappers](#21-custom-property-wrappers)
 
 - [Swift](#swift)
     1. [Optional Downcasting](#1-optional-downcasting)
@@ -776,10 +777,35 @@ var body: some View {
 
 *Tags: Animation, Effect, Number, Integers*
 
-## Format Currency
+## 20. Format Currency
 
 ```swift
 Text(1000000, format: .currency(code: "USD")) // this will be formatted to 1,000,000.00
+```
+
+## 21. Custom Property Wrappers
+
+Create a custom property wrapper struct when you need to use a projected value. For example, when you need to automatically valuate an email:
+
+```swift
+@propertyWrapper
+struct Email {
+  var wrappedValue: String
+  var projectedValue: Bool {
+    let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
+    let emailPred = NSPredicate(format: "SELF MATCHES %@", emailRegEx)
+    return emailPred.evaluate(with: wrappedValue)
+  }
+}
+```
+
+You can use the custom wrapper @Email and to access the projected value, you need to put a $(dollar sign) before the property name (e.g. $email).
+
+```swift
+struct Person {
+    let name: String
+    @Email var email: String
+}
 ```
 
 # Swift
