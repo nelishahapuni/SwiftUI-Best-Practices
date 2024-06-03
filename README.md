@@ -46,6 +46,7 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     11. [JavaScript Functions](#11-javascript-functions)
     12. [Make Binding Hashable And Equitable](#12-make-binding-hashable-and-equitable)
     13. [If Value](#13-if-value)
+    14. [Comparing Arrays](#14-comparing-arrays)
 
 - [Tips](#tips)
     1. [Remove Cached SwiftUI Previews](#1-remove-cached-swiftui-previews)
@@ -1197,6 +1198,7 @@ extension Binding: Hashable where Value: Hashable {
 
 🆗 Create a value and assign to it, based on the outcome of the if-else statement:
 
+```swift
 let comment: String
 
 if Int.random(in: 0...3).isMultiple(of: 2) {
@@ -1204,16 +1206,43 @@ if Int.random(in: 0...3).isMultiple(of: 2) {
 } else {
     comment = "It's an odd integer"
 }
+```
 
 ✅  Make the if statement part of the value:
 
+```swift
 let comment = if Int.random(in: 0...3).isMultiple(of: 2) {
     "It's an even integer"
 } else {
     "It's an odd integer"
 }
+```
 
 ❕ This is best when there are multiple "if else" statments. For short if/else, it's best to use ternary operators. 
+
+## 14. Comparing Arrays
+
+Compare array elements with custom logic inside closure
+
+✅  Best for single-use scenarios, no need to conform to Equitable 
+
+```swift
+let employees1 =[
+    Employee(name: "Alice", age: 39, role: "Engineer"),
+    Employee(name: "Bob", age: 25, role: "Designer")
+]
+
+let employees2 = [
+    Employee(name: "Charlie", age: 28, role: "Engineer"),
+    Employee(name: "Dave", age: 32, role: "Designer")
+]
+
+let areRolesEqual = employees1.elementsEqual(employees2) {
+    $0.role = $1.role
+}
+
+print(areRolesEqual)
+```
 
 ### Call JS function from webview with .evaluateJavaScript(...)
 ```swift
