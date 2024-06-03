@@ -45,6 +45,7 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     10. [Comparing Strings](#10-comparing-strings)
     11. [JavaScript Functions](#11-javascript-functions)
     12. [Make Binding Hashable And Equitable](#12-make-binding-hashable-and-equitable)
+    13. [If Value](#13-if-value)
 
 - [Tips](#tips)
     1. [Remove Cached SwiftUI Previews](#1-remove-cached-swiftui-previews)
@@ -1191,6 +1192,28 @@ extension Binding: Hashable where Value: Hashable {
     }
 }
 ```
+
+## 13. If Value
+
+🆗 Create a value and assign to it, based on the outcome of the if-else statement:
+
+let comment: String
+
+if Int.random(in: 0...3).isMultiple(of: 2) {
+    comment = "It's an even integer"
+} else {
+    comment = "It's an odd integer"
+}
+
+✅  Make the if statement part of the value:
+
+let comment = if Int.random(in: 0...3).isMultiple(of: 2) {
+    "It's an even integer"
+} else {
+    "It's an odd integer"
+}
+
+❕ This is best when there are multiple "if else" statments. For short if/else, it's best to use ternary operators. 
 
 ### Call JS function from webview with .evaluateJavaScript(...)
 ```swift
