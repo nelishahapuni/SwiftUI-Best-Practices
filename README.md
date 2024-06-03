@@ -47,6 +47,7 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     12. [Make Binding Hashable And Equitable](#12-make-binding-hashable-and-equitable)
     13. [If Value](#13-if-value)
     14. [Comparing Arrays](#14-comparing-arrays)
+    15. [Defer Completion Handler](15-defer-completion-handler)
 
 - [Tips](#tips)
     1. [Remove Cached SwiftUI Previews](#1-remove-cached-swiftui-previews)
@@ -1178,6 +1179,12 @@ func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigatio
 }
 ```
 
+### Call JS function from webview with .evaluateJavaScript(...)
+```swift
+myWebView.evaluateJavaScript("myJSFunc(\"\(data)\",\"\(success)\",\"\(status)\")", completionHandler: nil)
+```
+*Tags: WebView, JS, JavaScript, Website*
+
 ## 12. Make Binding Hashable And Equitable
 
 ```swift
@@ -1208,7 +1215,7 @@ if Int.random(in: 0...3).isMultiple(of: 2) {
 }
 ```
 
-✅  Make the if statement part of the value:
+✅ Make the if statement part of the value:
 
 ```swift
 let comment = if Int.random(in: 0...3).isMultiple(of: 2) {
@@ -1224,7 +1231,7 @@ let comment = if Int.random(in: 0...3).isMultiple(of: 2) {
 
 Compare array elements with custom logic inside closure
 
-✅  Best for single-use scenarios, no need to conform to Equitable 
+✅ Best for single-use scenarios, no need to conform to Equitable 
 
 ```swift
 let employees1 =[
@@ -1244,11 +1251,57 @@ let areRolesEqual = employees1.elementsEqual(employees2) {
 print(areRolesEqual)
 ```
 
-### Call JS function from webview with .evaluateJavaScript(...)
+## 15. Defer Completion Handler
+
+⛔️ In this case, the function will return, even if there is no completion handler
+
 ```swift
-myWebView.evaluateJavaScript("myJSFunc(\"\(data)\",\"\(success)\",\"\(status)\")", completionHandler: nil)
+func fetchData(url: URL, _ completion: @escaping (Result<Data, Error>) -> Void) {
+    URLSession.shared.dataTask(with: url) { data, _, error in
+        guard error == nil else {
+            // completion(.failure(error!))
+            return
+        }
+
+        guard let data else {
+            completion(.failure(NetworkError.noData))
+            return
+        }
+
+        completion(.success(data))
+    }
+    .resume()
+}
 ```
-*Tags: WebView, JS, JavaScript, Website*
+
+✅ To ensure that the completion handler is always called, create a property **let result: Result<Data, Error>** and defer the completion handler. This way, the compiler would report an error when **result** is unassigned.
+
+❕ Note: **defer statement** - a block of code that will be executed just before the current code block return/exits (normally or with an error)
+
+```swift
+func fetchData(url: URL, _ completion: @escaping (Result<Data, Error>) -> Void) {
+    URLSession.shared.dataTask(with: url) { data, _, error in
+        let result: Result<Data, Error>
+
+        defer {
+            completion(result)
+        }
+
+        guard error == nil else {
+            result = .failure(error!)
+            return
+        }
+
+        guard let data else {
+            result = .failure(NetworkError.noData)
+            return
+        }
+
+        result = .success(data)
+    }
+    .resume()
+}
+```
 
 # Tips
 
