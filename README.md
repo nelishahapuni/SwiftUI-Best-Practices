@@ -26,12 +26,14 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     13. [WebView](#13-webview)
     14. [EnvironmentObject & Singleton](#14-environmentobject--singleton)
     15. [Animations](#15-animations)
-    16. [Firebase Observed Object](#16-firebase-observed-object)
+    16. [Mock HTTP Client](#16-mock-http-client)
     17. [Set Environment Object](#17-set-environment-object)
     18. [Navigation Path Router](#18-navigation-path-router)
     19. [Animating Numbers](#19-animating-numbers)
     20. [Format Currency](#20-format-currency)
     21. [Custom Property Wrappers](#21-custom-property-wrappers)
+    22. [Firebase Query](#22-firebase-query)
+    23. [StoreKit Paypall](#23-storekit-paypall)
 
 - [Swift](#swift)
     1. [Optional Downcasting](#1-optional-downcasting)
@@ -49,11 +51,23 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     13. [If Value](#13-if-value)
     14. [Comparing Arrays](#14-comparing-arrays)
     15. [Defer Completion Handler](15-defer-completion-handler)
+    16. [Reserve Opacity Array](#16-reserve-opacity-array)
+    17. [Task Groups](#17-task-groups)
 
 - [Tips](#tips)
     1. [Remove Cached SwiftUI Previews](#1-remove-cached-swiftui-previews)
     2. [Prevent Dismiss Bottom Sheet](#2-prevent-dismiss-bottom-sheet)
     3. [Display Device Info SwiftUI](#30-display-device-info)
+    4. [Privacy Sensitive](#4-privacy-sensitive)
+    5. [Text Selectable](#5-text-selectable)
+    6. [Multiline String](#6-multiline-string)
+    7. [Button Repeat Behavior](#7-button-repeat-behavior)
+    8. [Image in Text](#8-image-in-text)
+    9. [Links within Text](#9-links-within-text)
+    10. [Test Localization](#10-test-localization)
+    11. [Hide Status Bar & Home Indicator](#11-hide-status-bar--home-indicator)
+    12. [Multi Date Picker](#12-multi-date-picker)
+    13. [Is Multiple Of](#13-is-multiple-of)
 
 - [Resources](#resources)
     
@@ -238,7 +252,7 @@ var body: some View {
 }
 ```
 
-# 7. Preview Macros
+## 7. Preview Macros
 
 You can quickly preview multiple views using Macros. You can rename the view & set them one-after-another.
 
@@ -498,62 +512,38 @@ struct ContentView: View {
 ```
 *Tags: Animation, Transition, Scale, Slide, Effect*
 
-## 16. Firebase Observed Object
-
-How to fetch data from firebase & present it in SwiftUI
+## 16. Mock HTTP Client
 
 ```swift
-struct Book: Identifiable {
-  var id: String = UUID().uuidString
-  var title: String
-  var author: String
-}
-```
 
-```swift
-import Foundation
-import FirebaseFirestore
- 
-class BooksViewModel: ObservableObject {
-  @Published var books = [Book]() // Note: @Published properties are always public
-  
-  private var db = Firestore.firestore()
-  
-  func fetchData() {
-    db.collection("books").addSnapshotListener { [weak self] (snapshot, error) in
-      guard let documents = snapshot?.documents { return }
- 
-      self?.books = documents.map { documentSnapshot -> Book in
-        let data = queryDocumentSnapshot.data()
-        let title = data["title"] as? String ?? ""
-        let author = data["author"] as? String ?? ""
- 
-        return Book(id: .init(), title: title, author: author)
-      }
-    }
-  }
-}
-```
+struct ContentView: View {
+    @Environment(\.httpClient) private var httpClient
+    @State private var products: [Product] = []
 
-```swift
-struct BooksListView: View {
-  @ObservedObject private var viewModel = BooksViewModel() // 1. Observed View Model
-  
-  var body: some View {
-    NavigationView {
-      List(viewModel.books) { book in // 2. Access property 'books' in the View Model
-        VStack(alignment: .leading) {
-          Text(book.title)
-          Text(book.author)
+    var body: some View {
+        VStack {
+            List(products) { product in
+                Text(product)
+            }.task {
+                do {
+                    products = try await httpClient.loadProducts()
+                } catch {
+                    print(error.localizedDescription)
+                }
+            }
         }
-      }
-      .onAppear() { // 3. Fetch the data from Firebase
-        viewModel.fetchData()
-      }
     }
-  }
 }
+
+#Preview {
+    ContentView()
+        .environment(\.httpClient, MockedHTTPClient())
+}
+
 ```
+
+*Tags: Mock API, HTTP, HTTPS, Testing*
+
 
 *Tags: Observed Object, Firebase, Realtime Database, View Model*
 
@@ -805,6 +795,76 @@ You can use the custom wrapper @Email and to access the projected value, you nee
 struct Person {
     let name: String
     @Email var email: String
+}
+```
+
+## 22. Firebase Query
+
+How to fetch all elements with a certain collection path name.
+
+❕ DocumentID is an easy way to tell Firebase how to map this struct to a Firestore document. 
+
+```swift
+struct Books: Codable, Identifiable {
+    @DocumentID var id: String?
+    var title: String
+    var author: String
+    var pages: Int
+}
+
+struct ContentView: View {
+    @FirestoreQuery(collectionPath: "books") var books: [Books]
+    
+    var body: some View {
+        List {
+            ForEach(books) { book in
+                VStack {
+                    Text(book.title)
+                    Text(book.author)
+                    Text(book.pages)
+                }
+            }
+        }
+    }
+}
+```
+
+You can also apply functions to the query:
+
+```swift
+books.order(by: "pages", descending: true).limit(to: 3)
+```
+
+## 23. StoreKit Paypall
+
+Create a custom paypall with StoreKit
+
+```swift
+import SwiftUI
+import StoreKit
+
+struct SubscriptionView: View {
+    var body: some View {
+        SubscriptionStoreView(productIDs: ["myapp.monthly", "myapp.yearly"]) {
+            HeaderView()
+        }
+        .subscriptionStorePolicyDestination(for: .termsOfService) {
+            Text("Terms of Service")
+        }
+        .subscriptionStorePolicyDestination(for: .privacyPolicy) {
+            Text("Privacy Policy")
+        }
+        .subscriptionStorePolicyForegroundStyle(.white)
+        .subscriptionStorePickerItemBackground(.thinMaterial)
+        .subscriptionStoreControlStyle(.prominentPicker)
+        .subscriptionStoreControlBackground(
+            LinearGradient(colors: [.indigo, .black], startPoint: .top, endPoint: .bottom)
+        )
+        .storeButton(.visible, for: .redeemCode)
+        .storeButton(.visible, for: .restorePurchases)
+        .storeButton(.visible, for: .cancellation)
+        .tint(.indigo)
+    }
 }
 ```
 
@@ -1329,6 +1389,74 @@ func fetchData(url: URL, _ completion: @escaping (Result<Data, Error>) -> Void) 
 }
 ```
 
+## 16. Reserve Capacity Array
+
+If you know the number of elements in an array, you can use the **.reserveCapacity()** method to keep the array in the same place in memory, which will optimize the app.
+
+```swift
+var arrayTwo: [Int] = []
+array.reserveCapacity(1)
+array.append(1)
+```
+
+## 17. Task Groups
+
+You want to fetch multiple **Movie** objects, using the movies' IDs. You can do that with task groups, where you first fecth all the ids, then inside .withThrowingTaskGroup(of: ) add a task with method .getMovie for each ID. 
+
+❕ Use .reserveCapacity() since you know the # of items
+
+```swift
+func getMovie(withId id: UUID) async throws -> Movie {
+    return try await network.fetchMovie(withId: id)
+}
+```
+
+```swift
+func fetchFavorites(user: User) async throws -> [Movie] {
+    // fetch ids for favorites from a remote source
+    let ids = await getFavoriteIds(for: user)
+
+    // load all favorites concurrently
+    return try await withThrowingTaskGroup(of: Movie.self) { group in
+        var movies = [Movie]()
+        movies.reserveCapacity(ids.count)
+
+        // adding tasks to the group and fetching movies
+        for id in ids {
+            group.addTask {
+                return try await self.getMovie(withId: id)
+            }
+        }
+
+        // grab movies as their tasks complete, and append them to the `movies` array
+        for try await movie in group {
+            movies.append(movie)
+        }
+
+        return movies
+    }
+}
+```
+
+## 18. Subscript Default
+
+```swift
+class BirdSightingsStore {
+    private var birdSightings: [BirdSpecies: [Date]] = [:]
+
+    // ⛔️ Old way with nil-coalescing operator
+    func addSighting(of birdSpecies: BirdSpecies) {
+        let currentValue = birdSpecies[birdSpecies] ?? []
+        birdSightings[birdSpecies] = currentValue + [Date()]
+    }
+
+    // ✅  Improved with subscript(_:default:)
+    func addSighting(of birdSpecies: BirdSpecies) {
+        birdSightings[birdSpecies, default: []].append(Date())
+    }
+}
+```
+
 # Tips
 
 ## 1. Remove Cached SwiftUI Previews
@@ -1357,9 +1485,120 @@ Text(.now, style: .time) // 8:30 PM
 Text(.now, style: .date) // 27 January 2024
 ```
 
+## 4. Privacy Sensitive
+
+Hide sensitive data like API keys with this setting
+
+```swift
+Text("hpOxZkqwhMlKJasB")
+    .privacySensitive(true)
+    .redacted(reason: .privacy)
+```
+
+## 5. Text Selectable
+
+```swift
+Text("Hello")
+    .textSelection(.enabled)
+```
+
+## 6. Multiline String
+
+⛔️ If you have multiple new lines in a string, this becomes difficult to read
+
+```swift
+let string = "1st line\n2nd line\n3rd line\n4th line"
+```
+
+✅ Instead, use the multiline string (""") and seperate each line as desired:
+
+```swift
+let string = """
+1st line
+2nd line
+3rd line
+4th line
+"""
+```
+
+## 7. Button Repeat Behavior
+
+You can configure a button to trigger an action repeatedly, while you hold the button:
+
+```swift
+Button("Tap Here") {
+    print("tapped...")
+}
+.buttonRepeatBehavior(.enabled)
+```
+
+## 8. Image in Text
+
+Insert images within text by using the ‘+’ operator.
+
+```swift
+Text("Made with ")
++
+Text(Image(systemName: "heart.fill"))
+    .foregroundStyle(.red)
++
+Text(" in Paris")
+```
+
+## 9. Links within Text
+
+```swift
+Text("Visit the [Apple](https://www.apple.com) website")
+```
+
+## 10. Test Localization
+
+```swift
+#Preview {
+    ContentView()
+        .environment(\.locale, Locale(identifier: "it")) // Italy
+}
+```
+
+## 11. Hide Status Bar & Home Indicator
+
+```swift
+.statusBarHidden()
+.persistentSystemOverlays(.hidden)
+```
+
+## 12. Multi Date Picker
+
+```swift
+struct ContentView: View {
+    @State private var selectedDates: Set<DateComponents> = []
+
+    var body: some View {
+        MultiDatePicker("Select Dates", selection: $selectedDates)
+    }
+}
+```
+
+## 13. Is Multiple Of
+
+Instead of using modulo (%) use the method .isMultiple(of: n) for better readibility:
+
+```swift
+let myInteger = Int.random(in: 0...10)
+
+if myInteger.isMultiple(of: 2) {
+    print("it's even")
+} else {
+    print("it's odd")
+}
+```
+
 # Resources
 
 - Swift Style Guide (Google) - https://google.github.io/swift/#file-comments
 - SwiftUI tips and tricks - https://www.hackingwithswift.com/quick-start/swiftui/swiftui-tips-and-tricks 
-- Vincent Pradeilles (Youtube Tutorials, Tips & Tricks) - https://www.youtube.com/@v_pradeilles 
-
+- Vincent Pradeilles (Youtube Tutorials, Tips & Tricks) - https://www.youtube.com/@v_pradeilles
+- Firebase Query - https://medium.com/firebase-developers/firestorequery-swiftui-the-easiest-way-to-listen-for-real-time-updates-32f436cfa26b 
+- Task Groups - https://www.donnywals.com/swift-concurrencys-taskgroup-explained/
+- StoreKit Paywall - https://media.licdn.com/dms/image/D4D22AQFLxqtJvKsO-w/feedshare-shrink_2048_1536/0/1713180461576?e=1720656000&v=beta&t=dcI_1lqTo93v5_upHCN-SJkCAngR0Jn2fEJlTWaaj2U
+- Masking & Inverted Masking - https://media.licdn.com/dms/image/D5622AQFOlGAD_7ZkUA/feedshare-shrink_2048_1536/0/1710857641606?e=1720656000&v=beta&t=HJgr6NTtEkLENzhsc55vt29rz8bNfLKJGEdyR2A-odE
