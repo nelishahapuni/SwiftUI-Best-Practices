@@ -53,12 +53,14 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     15. [Defer Completion Handler](15-defer-completion-handler)
     16. [Reserve Opacity Array](#16-reserve-opacity-array)
     17. [Task Groups](#17-task-groups)
+    18. [Subscript Default](#18-subscript-default)
+    19. [Static Thread Safe](#18-static-thread-safe)
 
 - [Tips](#tips)
     1. [Remove Cached SwiftUI Previews](#1-remove-cached-swiftui-previews)
     2. [Prevent Dismiss Bottom Sheet](#2-prevent-dismiss-bottom-sheet)
     3. [Display Device Info SwiftUI](#30-display-device-info)
-    4. [Privacy Sensitive](#4-privacy-sensitive)
+    4. [Redacted](#4-redacted)
     5. [Text Selectable](#5-text-selectable)
     6. [Multiline String](#6-multiline-string)
     7. [Button Repeat Behavior](#7-button-repeat-behavior)
@@ -68,6 +70,7 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     11. [Hide Status Bar & Home Indicator](#11-hide-status-bar--home-indicator)
     12. [Multi Date Picker](#12-multi-date-picker)
     13. [Is Multiple Of](#13-is-multiple-of)
+    14. [List Section Spacing](#14-list-section-spacing)
 
 - [Resources](#resources)
     
@@ -1457,6 +1460,68 @@ class BirdSightingsStore {
 }
 ```
 
+## 19. Static Thread Safe
+
+⛔️ The following code is not thread-safe:
+- Static props are shared among all instances of the class & can be accessed/modified from mult threads concurrently
+- No synchronization mechanism present (data races/inconsistent results)
+- If mult threads attempt to modify the prop - incorrect/incomplete modifications, data corruption, crashes
+
+```swift
+class Solution {
+    static var nums: [Int] = []
+}
+```
+
+✅ Thread safe - concurrent access to the names array should be synced w/locks, serial queues, etc.
+
+```swift
+class ThreadSafeSolution {
+    private static var nums: [Int] = []
+    private static let queue = DispatchQueue(label: "com.example.some-queue")
+
+    static var countNums: Int {
+        queue.sync {
+            nums.count
+        }
+    }
+
+    static func addNum(_ num: Int) {
+        queue.async(flags: .barrier) {
+            nums.append(num)
+        }
+    }
+}
+```
+
+✅ Singleton - SettingsManager - Applying the above solution to singletons
+- mult threads can read, but only one can modify at a time
+
+```swift
+class SettingsManager {
+    static let shared = SettingsManager()
+    private let serialQueue = DispatchQueue(label: "com.example.SettingsManager.serialQueue")
+    private var settings: [String: Any] = [:]
+
+    private init() {}
+
+    func setValue(_ value: Any, forKey key: String) {
+        serialQueue.async(flags: .barrier) {
+            self.settings[key] = value
+        }
+    }
+
+    func value(forKey key: String) -> Any? {
+        var result: Any?
+        serialQueue.sync {
+            result = self.settings[key]
+        }
+        return result
+    }
+}
+
+```
+
 # Tips
 
 ## 1. Remove Cached SwiftUI Previews
@@ -1485,9 +1550,16 @@ Text(.now, style: .time) // 8:30 PM
 Text(.now, style: .date) // 27 January 2024
 ```
 
-## 4. Privacy Sensitive
+## 4. Redacted
 
-Hide sensitive data like API keys with this setting
+Apply placehodler effect while waiting for text to be fetched
+
+```swift
+HomeView()
+    .redacted(reason: .placeholder)
+```
+
+Privacy Sensitive - Hide sensitive data like API keys with this setting
 
 ```swift
 Text("hpOxZkqwhMlKJasB")
@@ -1593,6 +1665,16 @@ if myInteger.isMultiple(of: 2) {
 }
 ```
 
+## 14. List Section Spacing
+
+Since iOS 17.0, you can change the spacing of lists:
+
+```swift
+.listSectionSpacing(.default) // default
+.listSectionSpacing(.compact) // very thin
+.listSectionSpacing(70) // custom
+```
+
 # Resources
 
 - Swift Style Guide (Google) - https://google.github.io/swift/#file-comments
@@ -1602,3 +1684,4 @@ if myInteger.isMultiple(of: 2) {
 - Task Groups - https://www.donnywals.com/swift-concurrencys-taskgroup-explained/
 - StoreKit Paywall - https://media.licdn.com/dms/image/D4D22AQFLxqtJvKsO-w/feedshare-shrink_2048_1536/0/1713180461576?e=1720656000&v=beta&t=dcI_1lqTo93v5_upHCN-SJkCAngR0Jn2fEJlTWaaj2U
 - Masking & Inverted Masking - https://media.licdn.com/dms/image/D5622AQFOlGAD_7ZkUA/feedshare-shrink_2048_1536/0/1710857641606?e=1720656000&v=beta&t=HJgr6NTtEkLENzhsc55vt29rz8bNfLKJGEdyR2A-odE
+- AppStorage & User Defaults - https://holyswift.app/using-userdefaults-to-persist-in-swiftui/
