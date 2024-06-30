@@ -33,7 +33,8 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     20. [Format Currency](#20-format-currency)
     21. [Custom Property Wrappers](#21-custom-property-wrappers)
     22. [Firebase Query](#22-firebase-query)
-    23. [StoreKit Paypall](#23-storekit-paypall)
+    23. [StoreKit Paywall](#23-storekit-paywall)
+    24. [Configurable Button](#24-configurable-button)
 
 - [Swift](#swift)
     1. [Optional Downcasting](#1-optional-downcasting)
@@ -71,6 +72,9 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     12. [Multi Date Picker](#12-multi-date-picker)
     13. [Is Multiple Of](#13-is-multiple-of)
     14. [List Section Spacing](#14-list-section-spacing)
+    15. [Reserve Space for Text](#15-reserve-space-for-text)
+    16. [Allows Hit Testing](#16-allows-hit-testing)
+    17. [Detect Low Power Mode](#17-detect-low-power-mode)
 
 - [Resources](#resources)
     
@@ -838,9 +842,9 @@ You can also apply functions to the query:
 books.order(by: "pages", descending: true).limit(to: 3)
 ```
 
-## 23. StoreKit Paypall
+## 23. StoreKit Paywall
 
-Create a custom paypall with StoreKit
+Create a custom paywall with StoreKit
 
 ```swift
 import SwiftUI
@@ -867,6 +871,149 @@ struct SubscriptionView: View {
         .storeButton(.visible, for: .restorePurchases)
         .storeButton(.visible, for: .cancellation)
         .tint(.indigo)
+    }
+}
+```
+
+## 24. Configurable Button 
+
+```swift
+struct ClaimButton: View {
+    let configuration: Configuration
+    let action: () -> Void
+
+    var body: some View {
+        Button {
+            action()
+        } label: {
+            HStack(spacing: 8) {
+                if let icon = configuration.icon {
+                    Image(systemName: icon)
+                        .resizable()
+                        .frame(width: 25, height: 25)
+                }
+                if configuration.isLoading {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .tint(configuration.textColor)
+                }
+                Text(configuration.text)
+            }
+            .padding(12)
+            .font(.title2)
+            .foregroundColor(configuration.textColor)
+            .frame(maxWidth: .infinity)
+            .background {
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(configuration.borderColor, lineWidth: 2.0)
+                    .background {
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(configuration.backgroundColor)
+                    }
+            }
+        }
+        .disabled(configuration.disabled)
+    }
+}
+```
+Extension of the claim button to add configurations: 
+
+```swift
+extension ClaimButton {
+    struct Configuration {
+        let icon: String?
+        let text: String
+        let textColor: Color
+        let backgroundColor: Color
+        let borderColor: Color
+        let isLoading: Bool
+        let disabled: Bool
+
+        // Initializer with default values
+        init(
+            icon: String? = nil,
+            text: String,
+            textColor: Color = .purple,
+            backgroundColor: Color = .purple.opacity(0.2),
+            borderColor: Color = .purple,
+            isLoading: Bool = false,
+            disabled: Bool = false
+        ) {
+            self.icon = icon
+            self.text = text
+            self.textColor = textColor
+            self.backgroundColor = backgroundColor
+            self.borderColor = borderColor
+            self.isLoading = isLoading
+            self.disabled = disabled
+        }
+        ...
+    }
+}
+```
+
+Create different button styles
+
+```swift
+// Default (normal) state
+static var normal: Configuration {
+    Configuration(
+        text: "Claim Coupon"
+    )
+}
+
+// Loading state
+static var loading: Configuration {
+    Configuration(
+        text: "Claiming...",
+        isLoading: true,
+        disabled: true
+    )
+}
+
+// Disabled state
+static var disabled: Configuration {
+    Configuration(
+        text: "Claim Coupon",
+        textColor: .secondary,
+        backgroundColor: .secondary.opacity(0.2),
+        borderColor: .secondary.opacity(0.7),
+        disabled: true
+    )
+}
+
+// Confirmed state
+static var confirmed: Configuration {
+    Configuration(
+        icon: "checkmark.circle.fill",
+        text: "Claimed!",
+        textColor: .green,
+        backgroundColor: .green.opacity(0.2),
+        borderColor: .green,
+        disabled: true
+    )
+}
+```
+Seeing it in action:
+
+```swift
+@Observable class ViewModel {
+    var claimButtonConfiguration: ClaimButton.Configuration = .normal
+
+    // Testing function
+    func claimCoupon() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            self.claimButtonConfiguration = .loading
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                self.claimButtonConfiguration = .confirmed
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    self.claimButtonConfiguration = .disabled
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                        self.claimButtonConfiguration = .normal
+                    }
+                }
+            }
+        }
     }
 }
 ```
@@ -1675,6 +1822,33 @@ Since iOS 17.0, you can change the spacing of lists:
 .listSectionSpacing(70) // custom
 ```
 
+## 15. Reserve Space for Text 
+
+```swift
+Text("Hello, this is a text")
+    .lineLimit(2, reserveSpace: true)
+    .background(Color.mint)
+```
+
+## 16. Allows Hit Testing
+
+If there's underlying content & you cannot access it, then you can use .allowsHitTesting(false)
+
+```swift
+Text("Hello")
+    .allowsHitTesting(false) 
+```
+
+## 17. Detect Low Power Mode
+
+```swift
+if ProcessInfo.processInfo.isLowPowerModeEnabled {
+    // do something or show a View
+} else {
+    // do something
+}
+```
+
 # Resources
 
 - Swift Style Guide (Google) - https://google.github.io/swift/#file-comments
@@ -1685,3 +1859,4 @@ Since iOS 17.0, you can change the spacing of lists:
 - StoreKit Paywall - https://media.licdn.com/dms/image/D4D22AQFLxqtJvKsO-w/feedshare-shrink_2048_1536/0/1713180461576?e=1720656000&v=beta&t=dcI_1lqTo93v5_upHCN-SJkCAngR0Jn2fEJlTWaaj2U
 - Masking & Inverted Masking - https://media.licdn.com/dms/image/D5622AQFOlGAD_7ZkUA/feedshare-shrink_2048_1536/0/1710857641606?e=1720656000&v=beta&t=HJgr6NTtEkLENzhsc55vt29rz8bNfLKJGEdyR2A-odE
 - AppStorage & User Defaults - https://holyswift.app/using-userdefaults-to-persist-in-swiftui/
+- Swift Package Manager Fetching - https://ahmdyasser.medium.com/why-fetching-packages-using-swift-package-manger-takes-too-much-time-138982a0fba5
