@@ -33,7 +33,8 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     20. [Format Currency](#20-format-currency)
     21. [Custom Property Wrappers](#21-custom-property-wrappers)
     22. [Firebase Query](#22-firebase-query)
-    23. [StoreKit Paypall](#23-storekit-paypall)
+    23. [StoreKit Paywall](#23-storekit-paywall)
+    24. [Configurable Button](#24-configurable-button)
 
 - [Swift](#swift)
     1. [Optional Downcasting](#1-optional-downcasting)
@@ -54,13 +55,15 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     16. [Reserve Opacity Array](#16-reserve-opacity-array)
     17. [Task Groups](#17-task-groups)
     18. [Subscript Default](#18-subscript-default)
+    19. [Static Thread Safe](#18-static-thread-safe)
+    18. [Subscript Default](#18-subscript-default)
     19. [Conditional Modifiers](#18-conditional-modifiers)
 
 - [Tips](#tips)
     1. [Remove Cached SwiftUI Previews](#1-remove-cached-swiftui-previews)
     2. [Prevent Dismiss Bottom Sheet](#2-prevent-dismiss-bottom-sheet)
     3. [Display Device Info SwiftUI](#30-display-device-info)
-    4. [Privacy Sensitive](#4-privacy-sensitive)
+    4. [Redacted](#4-redacted)
     5. [Text Selectable](#5-text-selectable)
     6. [Multiline String](#6-multiline-string)
     7. [Button Repeat Behavior](#7-button-repeat-behavior)
@@ -70,6 +73,10 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     11. [Hide Status Bar & Home Indicator](#11-hide-status-bar--home-indicator)
     12. [Multi Date Picker](#12-multi-date-picker)
     13. [Is Multiple Of](#13-is-multiple-of)
+    14. [List Section Spacing](#14-list-section-spacing)
+    15. [Reserve Space for Text](#15-reserve-space-for-text)
+    16. [Allows Hit Testing](#16-allows-hit-testing)
+    17. [Detect Low Power Mode](#17-detect-low-power-mode)
     14. [Compositing Group](#14-compositing-group)
 
 - [Resources](#resources)
@@ -838,9 +845,9 @@ You can also apply functions to the query:
 books.order(by: "pages", descending: true).limit(to: 3)
 ```
 
-## 23. StoreKit Paypall
+## 23. StoreKit Paywall
 
-Create a custom paypall with StoreKit
+Create a custom paywall with StoreKit
 
 ```swift
 import SwiftUI
@@ -867,6 +874,149 @@ struct SubscriptionView: View {
         .storeButton(.visible, for: .restorePurchases)
         .storeButton(.visible, for: .cancellation)
         .tint(.indigo)
+    }
+}
+```
+
+## 24. Configurable Button 
+
+```swift
+struct ClaimButton: View {
+    let configuration: Configuration
+    let action: () -> Void
+
+    var body: some View {
+        Button {
+            action()
+        } label: {
+            HStack(spacing: 8) {
+                if let icon = configuration.icon {
+                    Image(systemName: icon)
+                        .resizable()
+                        .frame(width: 25, height: 25)
+                }
+                if configuration.isLoading {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .tint(configuration.textColor)
+                }
+                Text(configuration.text)
+            }
+            .padding(12)
+            .font(.title2)
+            .foregroundColor(configuration.textColor)
+            .frame(maxWidth: .infinity)
+            .background {
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(configuration.borderColor, lineWidth: 2.0)
+                    .background {
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(configuration.backgroundColor)
+                    }
+            }
+        }
+        .disabled(configuration.disabled)
+    }
+}
+```
+Extension of the claim button to add configurations: 
+
+```swift
+extension ClaimButton {
+    struct Configuration {
+        let icon: String?
+        let text: String
+        let textColor: Color
+        let backgroundColor: Color
+        let borderColor: Color
+        let isLoading: Bool
+        let disabled: Bool
+
+        // Initializer with default values
+        init(
+            icon: String? = nil,
+            text: String,
+            textColor: Color = .purple,
+            backgroundColor: Color = .purple.opacity(0.2),
+            borderColor: Color = .purple,
+            isLoading: Bool = false,
+            disabled: Bool = false
+        ) {
+            self.icon = icon
+            self.text = text
+            self.textColor = textColor
+            self.backgroundColor = backgroundColor
+            self.borderColor = borderColor
+            self.isLoading = isLoading
+            self.disabled = disabled
+        }
+        ...
+    }
+}
+```
+
+Create different button styles
+
+```swift
+// Default (normal) state
+static var normal: Configuration {
+    Configuration(
+        text: "Claim Coupon"
+    )
+}
+
+// Loading state
+static var loading: Configuration {
+    Configuration(
+        text: "Claiming...",
+        isLoading: true,
+        disabled: true
+    )
+}
+
+// Disabled state
+static var disabled: Configuration {
+    Configuration(
+        text: "Claim Coupon",
+        textColor: .secondary,
+        backgroundColor: .secondary.opacity(0.2),
+        borderColor: .secondary.opacity(0.7),
+        disabled: true
+    )
+}
+
+// Confirmed state
+static var confirmed: Configuration {
+    Configuration(
+        icon: "checkmark.circle.fill",
+        text: "Claimed!",
+        textColor: .green,
+        backgroundColor: .green.opacity(0.2),
+        borderColor: .green,
+        disabled: true
+    )
+}
+```
+Seeing it in action:
+
+```swift
+@Observable class ViewModel {
+    var claimButtonConfiguration: ClaimButton.Configuration = .normal
+
+    // Testing function
+    func claimCoupon() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            self.claimButtonConfiguration = .loading
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                self.claimButtonConfiguration = .confirmed
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    self.claimButtonConfiguration = .disabled
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                        self.claimButtonConfiguration = .normal
+                    }
+                }
+            }
+        }
     }
 }
 ```
@@ -1460,6 +1610,68 @@ class BirdSightingsStore {
 }
 ```
 
+## 19. Static Thread Safe
+
+⛔️ The following code is not thread-safe:
+- Static props are shared among all instances of the class & can be accessed/modified from mult threads concurrently
+- No synchronization mechanism present (data races/inconsistent results)
+- If mult threads attempt to modify the prop - incorrect/incomplete modifications, data corruption, crashes
+
+```swift
+class Solution {
+    static var nums: [Int] = []
+}
+```
+
+✅ Thread safe - concurrent access to the names array should be synced w/locks, serial queues, etc.
+
+```swift
+class ThreadSafeSolution {
+    private static var nums: [Int] = []
+    private static let queue = DispatchQueue(label: "com.example.some-queue")
+
+    static var countNums: Int {
+        queue.sync {
+            nums.count
+        }
+    }
+
+    static func addNum(_ num: Int) {
+        queue.async(flags: .barrier) {
+            nums.append(num)
+        }
+    }
+}
+```
+
+✅ Singleton - SettingsManager - Applying the above solution to singletons
+- mult threads can read, but only one can modify at a time
+
+```swift
+class SettingsManager {
+    static let shared = SettingsManager()
+    private let serialQueue = DispatchQueue(label: "com.example.SettingsManager.serialQueue")
+    private var settings: [String: Any] = [:]
+
+    private init() {}
+
+    func setValue(_ value: Any, forKey key: String) {
+        serialQueue.async(flags: .barrier) {
+            self.settings[key] = value
+        }
+    }
+
+    func value(forKey key: String) -> Any? {
+        var result: Any?
+        serialQueue.sync {
+            result = self.settings[key]
+        }
+        return result
+    }
+}
+
+```
+
 ## 19. Conditional Modifiers
 
 Almost all modifiers accept a **nil** value for no changes, so *always* do:
@@ -1502,9 +1714,16 @@ Text(.now, style: .time) // 8:30 PM
 Text(.now, style: .date) // 27 January 2024
 ```
 
-## 4. Privacy Sensitive
+## 4. Redacted
 
-Hide sensitive data like API keys with this setting
+Apply placehodler effect while waiting for text to be fetched
+
+```swift
+HomeView()
+    .redacted(reason: .placeholder)
+```
+
+Privacy Sensitive - Hide sensitive data like API keys with this setting
 
 ```swift
 Text("hpOxZkqwhMlKJasB")
@@ -1610,6 +1829,43 @@ if myInteger.isMultiple(of: 2) {
 }
 ```
 
+## 14. List Section Spacing
+
+Since iOS 17.0, you can change the spacing of lists:
+
+```swift
+.listSectionSpacing(.default) // default
+.listSectionSpacing(.compact) // very thin
+.listSectionSpacing(70) // custom
+```
+
+## 15. Reserve Space for Text 
+
+```swift
+Text("Hello, this is a text")
+    .lineLimit(2, reserveSpace: true)
+    .background(Color.mint)
+```
+
+## 16. Allows Hit Testing
+
+If there's underlying content & you cannot access it, then you can use .allowsHitTesting(false)
+
+```swift
+Text("Hello")
+    .allowsHitTesting(false) 
+```
+
+## 17. Detect Low Power Mode
+
+```swift
+if ProcessInfo.processInfo.isLowPowerModeEnabled {
+    // do something or show a View
+} else {
+    // do something
+}
+```
+
 ## 14. Compositing Group
 
 If you want to apply the same modifiers to a group, you can use the **.compositingGroup()** modifier.
@@ -1636,3 +1892,5 @@ VStack {
 - Task Groups - https://www.donnywals.com/swift-concurrencys-taskgroup-explained/
 - StoreKit Paywall - https://media.licdn.com/dms/image/D4D22AQFLxqtJvKsO-w/feedshare-shrink_2048_1536/0/1713180461576?e=1720656000&v=beta&t=dcI_1lqTo93v5_upHCN-SJkCAngR0Jn2fEJlTWaaj2U
 - Masking & Inverted Masking - https://media.licdn.com/dms/image/D5622AQFOlGAD_7ZkUA/feedshare-shrink_2048_1536/0/1710857641606?e=1720656000&v=beta&t=HJgr6NTtEkLENzhsc55vt29rz8bNfLKJGEdyR2A-odE
+- AppStorage & User Defaults - https://holyswift.app/using-userdefaults-to-persist-in-swiftui/
+- Swift Package Manager Fetching - https://ahmdyasser.medium.com/why-fetching-packages-using-swift-package-manger-takes-too-much-time-138982a0fba5
