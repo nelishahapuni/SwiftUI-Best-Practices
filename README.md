@@ -55,9 +55,8 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     16. [Reserve Opacity Array](#16-reserve-opacity-array)
     17. [Task Groups](#17-task-groups)
     18. [Subscript Default](#18-subscript-default)
-    19. [Static Thread Safe](#18-static-thread-safe)
-    18. [Subscript Default](#18-subscript-default)
-    19. [Conditional Modifiers](#18-conditional-modifiers)
+    19. [Static Thread Safe](#19-static-thread-safe)
+    20. [Conditional Modifiers](#20-conditional-modifiers)
 
 - [Tips](#tips)
     1. [Remove Cached SwiftUI Previews](#1-remove-cached-swiftui-previews)
@@ -77,7 +76,7 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     15. [Reserve Space for Text](#15-reserve-space-for-text)
     16. [Allows Hit Testing](#16-allows-hit-testing)
     17. [Detect Low Power Mode](#17-detect-low-power-mode)
-    14. [Compositing Group](#14-compositing-group)
+    18. [Compositing Group](#18-compositing-group)
 
 - [Resources](#resources)
     
@@ -1672,7 +1671,7 @@ class SettingsManager {
 
 ```
 
-## 19. Conditional Modifiers
+## 20. Conditional Modifiers
 
 Almost all modifiers accept a **nil** value for no changes, so *always* do:
 
@@ -1866,7 +1865,7 @@ if ProcessInfo.processInfo.isLowPowerModeEnabled {
 }
 ```
 
-## 14. Compositing Group
+## 18. Compositing Group
 
 If you want to apply the same modifiers to a group, you can use the **.compositingGroup()** modifier.
 
