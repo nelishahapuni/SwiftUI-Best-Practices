@@ -53,6 +53,8 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     15. [Defer Completion Handler](15-defer-completion-handler)
     16. [Reserve Opacity Array](#16-reserve-opacity-array)
     17. [Task Groups](#17-task-groups)
+    18. [Subscript Default](#18-subscript-default)
+    19. [Conditional Modifiers](#18-conditional-modifiers)
 
 - [Tips](#tips)
     1. [Remove Cached SwiftUI Previews](#1-remove-cached-swiftui-previews)
@@ -68,6 +70,7 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     11. [Hide Status Bar & Home Indicator](#11-hide-status-bar--home-indicator)
     12. [Multi Date Picker](#12-multi-date-picker)
     13. [Is Multiple Of](#13-is-multiple-of)
+    14. [Compositing Group](#14-compositing-group)
 
 - [Resources](#resources)
     
@@ -1457,6 +1460,20 @@ class BirdSightingsStore {
 }
 ```
 
+## 19. Conditional Modifiers
+
+Almost all modifiers accept a **nil** value for no changes, so *always* do:
+
+```swift
+@State var overlay: Bool
+
+var body: some View { 
+    Image(systemName: "photo")
+        .resizable()
+        .overlay(overlay ? Circle().foregroundColor(Color.red) : nil) // use nil
+}
+```
+
 # Tips
 
 ## 1. Remove Cached SwiftUI Previews
@@ -1591,6 +1608,23 @@ if myInteger.isMultiple(of: 2) {
 } else {
     print("it's odd")
 }
+```
+
+## 14. Compositing Group
+
+If you want to apply the same modifiers to a group, you can use the **.compositingGroup()** modifier.
+
+```swift
+VStack {
+    // ... some views
+}
+.compositingGroup()
+.shadow(
+    color: .black,
+    radius: 30,
+    x: 0,
+    y: 5
+)
 ```
 
 # Resources
