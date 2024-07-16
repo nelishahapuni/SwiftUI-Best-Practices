@@ -1,6 +1,6 @@
 # SwiftUI Best Practices
 
-This documents contains a collection of best practices for SwiftUI, Swift 5+ and iOS 17+.
+This documents contains a collection of best practices for SwiftUI, Swift 6 and iOS 18.
 
 ⛔️ = Bad Practice (MR/PR won't be approved)
 
@@ -36,6 +36,7 @@ This documents contains a collection of best practices for SwiftUI, Swift 5+ and
     23. [StoreKit Paywall](#23-storekit-paywall)
     24. [Configurable Button](#24-configurable-button)
     25. [Text Contrast](#25-text-contrast)
+    26. [Mesh Gradient](#26-mesh-gradient)
 
 - [Swift](#swift)
     1. [Optional Downcasting](#1-optional-downcasting)
@@ -1047,6 +1048,27 @@ extension Color {
         isLight() ? Color.black : Color.white
     }
 }
+```
+
+## 26. Mesh Gradient
+
+```swift
+MeshGradient(
+    width: 3,
+    height: 3, 
+    points: [
+        [0.0, 0.0], [0.5, 0.0], [1.0, 0.0],
+        [0.5, 1.0], [0.7, 0.5], [1.0, 0.7],
+        [0.0, 1.0], [0.0, 0.5], [0.0, 0.5]
+    ],
+    colors: [
+        .teal, .purple, .indigo,
+        .purple, .blue, .pink,
+        .purple, .red, .purple
+    ]
+)
+.ignoresSafeArea()
+.shadow(color: .gray, radius: 25, x: -10, y: 10)
 ```
 
 // Apply modifier to Color objects
