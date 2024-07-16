@@ -1946,3 +1946,4 @@ VStack {
 - Masking & Inverted Masking - https://media.licdn.com/dms/image/D5622AQFOlGAD_7ZkUA/feedshare-shrink_2048_1536/0/1710857641606?e=1720656000&v=beta&t=HJgr6NTtEkLENzhsc55vt29rz8bNfLKJGEdyR2A-odE
 - AppStorage & User Defaults - https://holyswift.app/using-userdefaults-to-persist-in-swiftui/
 - Swift Package Manager Fetching - https://ahmdyasser.medium.com/why-fetching-packages-using-swift-package-manger-takes-too-much-time-138982a0fba5
+- Localization with String Catalogs - https://medium.com/@mali92390/app-localization-in-ios-string-catalog-part-1-abe5477c07b1
