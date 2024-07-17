@@ -59,6 +59,7 @@ This documents contains a collection of best practices for SwiftUI, Swift 6 and 
     18. [Subscript Default](#18-subscript-default)
     19. [Static Thread Safe](#19-static-thread-safe)
     20. [Conditional Modifiers](#20-conditional-modifiers)
+    21. [Wrap Text in Symbol](#21-wrap-text-in-symbol)
 
 - [Tips](#tips)
     1. [Remove Cached SwiftUI Previews](#1-remove-cached-swiftui-previews)
@@ -1736,6 +1737,19 @@ var body: some View {
         .resizable()
         .overlay(overlay ? Circle().foregroundColor(Color.red) : nil) // use nil
 }
+```
+
+## 21. Wrap Text in Symbol
+
+```swift
+Image(systemName: "clipboard")
+    .imageScale(.large)
+    .font(.system(size: 100))
+    .overlay {
+        Text("Hello, world!")
+            .font(.title)
+            .multilineTextAlignment(.center)
+    }
 ```
 
 # Tips
