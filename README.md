@@ -1961,3 +1961,4 @@ VStack {
 - AppStorage & User Defaults - https://holyswift.app/using-userdefaults-to-persist-in-swiftui/
 - Swift Package Manager Fetching - https://ahmdyasser.medium.com/why-fetching-packages-using-swift-package-manger-takes-too-much-time-138982a0fba5
 - Localization with String Catalogs - https://medium.com/@mali92390/app-localization-in-ios-string-catalog-part-1-abe5477c07b1
+- Runtime costs of protocol conformance - https://medium.com/geekculture/the-surprising-cost-of-protocol-conformances-in-swift-dfa5db15ac0c
