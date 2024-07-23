@@ -37,6 +37,7 @@ This documents contains a collection of best practices for SwiftUI, Swift 6 and 
     24. [Configurable Button](#24-configurable-button)
     25. [Text Contrast](#25-text-contrast)
     26. [Mesh Gradient](#26-mesh-gradient)
+    27. [Preference Key](#27-preference-key)
 
 - [Swift](#swift)
     1. [Optional Downcasting](#1-optional-downcasting)
@@ -1076,6 +1077,44 @@ MeshGradient(
 
 // Apply modifier to Color objects
 
+## 27. Preference Key
+Create a new struct which conforms to **PreferenceKey**
+
+```swift
+struct MyPreferenceKey: PreferenceKey {
+    static var defaultValue: String = ""
+    
+    static func reduce(value: inout String, nextValue: () -> String) {
+        value = "\(value) & \(nextValue()) too"
+    }
+    
+    typealias Value = String
+}
+```
+Set .preference modifiers for both Text views. Use @State variable to capture value from preference and render that on screen in another Text view. 
+
+```swift
+struct PreferenceKeyView: View {
+    
+    @State private var prefValue = ""
+    
+    var body: some View {
+        VStack {
+            Text("Nelkin")
+                .preference(key: DTPreferenceKey.self, value: "Nelkin")
+            Text("iOS Developer")
+                .preference(key: DTPreferenceKey.self, value: "SwiftUI, iOS, UIKit")
+            Divider()
+            Text(prefValue)
+                .font(.title3)
+        }
+        .onPreferenceChange(DTPreferenceKey.self) { value in
+            prefValue = value
+        }
+    }
+}
+```
+
 # Swift
 
 Best practices to be used with Swift 5 or newer.
@@ -1968,3 +2007,4 @@ VStack {
 - Swift Package Manager Fetching - https://ahmdyasser.medium.com/why-fetching-packages-using-swift-package-manger-takes-too-much-time-138982a0fba5
 - Localization with String Catalogs - https://medium.com/@mali92390/app-localization-in-ios-string-catalog-part-1-abe5477c07b1
 - Runtime costs of protocol conformance - https://medium.com/geekculture/the-surprising-cost-of-protocol-conformances-in-swift-dfa5db15ac0c
+- Preference Key: https://www.devtechie.com/community/public/posts/231536-preferencekey-preference-modifier-in-swiftui
