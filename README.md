@@ -81,6 +81,8 @@ This documents contains a collection of best practices for SwiftUI, Swift 6 and 
     17. [Detect Low Power Mode](#17-detect-low-power-mode)
     18. [Compositing Group](#18-compositing-group)
 
+- [Optimizations](#optimizations)
+
 - [Resources](#resources)
     
 
@@ -1948,6 +1950,10 @@ VStack {
     y: 5
 )
 ```
+
+# Optimizations
+
+- Use **@State** and **@Binding** - they refresh the view only when values change. **@ObservedObject** and **@EnvironmentObject** refresh the view for any property change within the object. 
 
 # Resources
 
