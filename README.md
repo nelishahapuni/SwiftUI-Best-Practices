@@ -38,6 +38,7 @@ This documents contains a collection of best practices for SwiftUI, Swift 6 and 
     25. [Text Contrast](#25-text-contrast)
     26. [Mesh Gradient](#26-mesh-gradient)
     27. [Preference Key](#27-preference-key)
+    28. [Simultaneous Gesture](#28-simultaneous-gesture)
 
 - [Swift](#swift)
     1. [Optional Downcasting](#1-optional-downcasting)
@@ -1115,6 +1116,47 @@ struct PreferenceKeyView: View {
 }
 ```
 
+## 28. Simultaneous Gesture
+
+Detect multiple gestures on different views:
+
+Without .simultaneousGesture(), only .onTapGesture **{ print("Circle tapped") }** will be triggered:
+
+```swift
+VStack {
+    Circle()
+        .fill(.red)
+        .frame(width: 200, height: 200)
+        .onTapGesture {
+            print("Circle tapped")
+        }
+}
+.onTapGesture {
+    print("VStack tapped")
+}
+```
+
+✅ Using .simultaneousGesture() on the VStack, will trigger both gestures (in case you need to detect when the parent view has been touched):
+
+```swift
+VStack {
+    Circle()
+        .fill(.red)
+        .frame(width: 200, height: 200)
+        .onTapGesture {
+            print("Circle tapped")
+        }
+}
+.simultaneousGesture(
+    TapGesture()
+        .onEnded { _ in
+            print("VStack tapped")
+        }
+)
+```
+
+It's also good for optimization, as you would not need to create seperate modifiers (thus views) for each gesture.
+
 # Swift
 
 Best practices to be used with Swift 5 or newer.
@@ -2008,3 +2050,4 @@ VStack {
 - Localization with String Catalogs - https://medium.com/@mali92390/app-localization-in-ios-string-catalog-part-1-abe5477c07b1
 - Runtime costs of protocol conformance - https://medium.com/geekculture/the-surprising-cost-of-protocol-conformances-in-swift-dfa5db15ac0c
 - Preference Key: https://www.devtechie.com/community/public/posts/231536-preferencekey-preference-modifier-in-swiftui
+- Protocol Conformance Check at Runtime: https://www.emergetools.com/blog/posts/how-order-files-speed-up-protocols
