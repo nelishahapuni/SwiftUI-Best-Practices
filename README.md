@@ -39,6 +39,7 @@ This documents contains a collection of best practices for SwiftUI, Swift 6 and 
     26. [Mesh Gradient](#26-mesh-gradient)
     27. [Preference Key](#27-preference-key)
     28. [Simultaneous Gesture](#28-simultaneous-gesture)
+    29. [Entry Macro](#29-entry-macro)
 
 - [Swift](#swift)
     1. [Optional Downcasting](#1-optional-downcasting)
@@ -1156,6 +1157,72 @@ VStack {
 ```
 
 It's also good for optimization, as you would not need to create seperate modifiers (thus views) for each gesture.
+
+## 29. Entry Macro
+
+Imagine you have a set of custom properties you must share via the environment. 
+⛔️ In this case, you must create many types conforming to the EnvironmentKey protocol and repeat the code for every property. 
+
+```swift
+struct UserStateEnvironmentKey: EnvironmentKey {
+    static var defaultValue: UserState = .new
+}
+
+extension EnvironmentValues {
+    public var userState: UserState {
+        get { self[UserStateEnvironmentKey.self] }
+        set { self[UserStateEnvironmentKey.self] = newValue }
+    }
+}
+```
+
+✅ The new **Entry** macro simplifies the code needed to conform to the custom environment key.
+
+```swift
+extension EnvironmentValues {
+    @Entry var userState = UserState.new
+}
+```
+
+Usage:
+
+```swift
+@main
+struct MyApp: App {
+    @State var userState = UserState.new
+    
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+                .environment(\.userState, userState)
+        }
+    }
+}
+```
+
+❕ The Entry macro works for the **environment, transactions, container, and focused values**.
+
+⛔️ Boilerplate:
+```swift
+struct FocusedNoteValue: FocusedValueKey {
+    typealias Value = String
+}
+
+extension FocusedValues {
+    var noteValue: FocusedNoteValue.Value? {
+        get { self[FocusedNoteValue.self] }
+        set { self[FocusedNoteValue.self] = newValue }
+    }
+}
+```
+✅ With Entry macro:
+```swift
+extension FocusedValues {
+    @Entry var noteValue: String?
+}
+```
+
+The only difference is the property that you define in the extension of the **FocusedValues** type must be **optional** because it is only available when the view is focused.
 
 # Swift
 
