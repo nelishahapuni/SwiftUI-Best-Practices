@@ -40,6 +40,8 @@ This documents contains a collection of best practices for SwiftUI, Swift 6 and 
     27. [Preference Key](#27-preference-key)
     28. [Simultaneous Gesture](#28-simultaneous-gesture)
     29. [Entry Macro](#29-entry-macro)
+    30. [Conditional Modifiers](#20-conditional-modifiers)
+    31. [Wrap Text in Symbol](#21-wrap-text-in-symbol)
 
 - [Swift](#swift)
     1. [Optional Downcasting](#1-optional-downcasting)
@@ -61,8 +63,7 @@ This documents contains a collection of best practices for SwiftUI, Swift 6 and 
     17. [Task Groups](#17-task-groups)
     18. [Subscript Default](#18-subscript-default)
     19. [Static Thread Safe](#19-static-thread-safe)
-    20. [Conditional Modifiers](#20-conditional-modifiers)
-    21. [Wrap Text in Symbol](#21-wrap-text-in-symbol)
+    20. [Use cases for self, Self and Self.self](#20-use-cases-for-self-Self-and-Self.self)
 
 - [Tips](#tips)
     1. [Remove Cached SwiftUI Previews](#1-remove-cached-swiftui-previews)
@@ -1224,6 +1225,33 @@ extension FocusedValues {
 
 The only difference is the property that you define in the extension of the **FocusedValues** type must be **optional** because it is only available when the view is focused.
 
+## 30. Conditional Modifiers
+
+Almost all modifiers accept a **nil** value for no changes, so *always* do:
+
+```swift
+@State var overlay: Bool
+
+var body: some View { 
+    Image(systemName: "photo")
+        .resizable()
+        .overlay(overlay ? Circle().foregroundColor(Color.red) : nil) // use nil
+}
+```
+
+## 31. Wrap Text in Symbol
+
+```swift
+Image(systemName: "clipboard")
+    .imageScale(.large)
+    .font(.system(size: 100))
+    .overlay {
+        Text("Hello, world!")
+            .font(.title)
+            .multilineTextAlignment(.center)
+    }
+```
+
 # Swift
 
 Best practices to be used with Swift 5 or newer.
@@ -1872,35 +1900,58 @@ class SettingsManager {
         return result
     }
 }
-
 ```
 
-## 20. Conditional Modifiers
+## 20. Use cases for self, Self and Self.self
 
-Almost all modifiers accept a **nil** value for no changes, so *always* do:
+### self - instance reference
+
+**self** is used to access the instance's properties and methods from within its own scope. Useful for differentiating between instance properties and method parameters when they share the same name.
 
 ```swift
-@State var overlay: Bool
-
-var body: some View { 
-    Image(systemName: "photo")
-        .resizable()
-        .overlay(overlay ? Circle().foregroundColor(Color.red) : nil) // use nil
+class Person {
+    var name: String
+    init(name: String) {
+        self.name = name
+    }
 }
 ```
 
-## 21. Wrap Text in Symbol
+### Self - type reference in protocols
+
+**Self** is a type that conforms to a given protocol, allowing for polymorphic behavior. The protocol specifies requirements that are then tailored to the conforming type. Useful in the context of protocol-oriented design.
 
 ```swift
-Image(systemName: "clipboard")
-    .imageScale(.large)
-    .font(.system(size: 100))
-    .overlay {
-        Text("Hello, world!")
-            .font(.title)
-            .multilineTextAlignment(.center)
-    }
+protocol Duplicatable {
+    func duplicate() -> Self
+}
 ```
+Here **Self** is used to specify that the **duplicate()** method should return an instance of the conforming type. The exact type is not specified in the protocol itself, but will be determined by the type that conforms to the protocol. It allows each conforming type to have a clear contract: if you conform to **Duplicatable**, you must implement a **duplicate()** method that returns an instance of your own type.
+
+### Self.self - metatype reference
+**Self.self** is the metatype of the type - **the type of the type** itself. Commonly used in static methods, or when we need to access type-level properties, or pass the type itself as a parameter.
+
+```swift
+protocol Registrable {
+    static func register()
+}
+
+extension Registrable {
+    static func register() {
+        print("Registering \(Self.self)")
+    }
+}
+
+class Service: Registrable {}
+```
+
+Result of calling register on Service:
+```swift
+Service.register()
+// Prints `Registering Service`
+```
+
+**Self.self** is used to access the metatype of the conforming type (Service) within a static method, allowing for type-level operations.
 
 # Tips
 
