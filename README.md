@@ -64,6 +64,7 @@ This documents contains a collection of best practices for SwiftUI, Swift 6 and 
     18. [Subscript Default](#18-subscript-default)
     19. [Static Thread Safe](#19-static-thread-safe)
     20. [Use cases for self, Self and Self.self](#20-use-cases-for-self-Self-and-Self.self)
+    21. [Guard Array Index](#21-guard-array-index)
 
 - [Tips](#tips)
     1. [Remove Cached SwiftUI Previews](#1-remove-cached-swiftui-previews)
@@ -1949,9 +1950,23 @@ Result of calling register on Service:
 ```swift
 Service.register()
 // Prints `Registering Service`
-```
+```swift
 
 **Self.self** is used to access the metatype of the conforming type (Service) within a static method, allowing for type-level operations.
+
+## Guard Array Index
+
+⛔️ Don't access item at index directly
+```swift
+let item = array[index]
+```
+
+✅ Guard whether the array contains the given index before accessing it
+
+```swift
+guard array.indices.contains(index) else { return }
+let item = array[index]
+```
 
 # Tips
 
