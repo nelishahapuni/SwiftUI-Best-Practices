@@ -65,6 +65,7 @@ This documents contains a collection of best practices for SwiftUI, Swift 6 and 
     19. [Static Thread Safe](#19-static-thread-safe)
     20. [Use cases for self, Self and Self.self](#20-use-cases-for-self-Self-and-Self.self)
     21. [Guard Array Index](#21-guard-array-index)
+    22. [Typealias with Generics](#22-typealias-with-generics)
 
 - [Tips](#tips)
     1. [Remove Cached SwiftUI Previews](#1-remove-cached-swiftui-previews)
@@ -1954,7 +1955,7 @@ Service.register()
 
 **Self.self** is used to access the metatype of the conforming type (Service) within a static method, allowing for type-level operations.
 
-## Guard Array Index
+## 21. Guard Array Index
 
 ⛔️ Don't access item at index directly
 ```swift
@@ -1966,6 +1967,22 @@ let item = array[index]
 ```swift
 guard array.indices.contains(index) else { return }
 let item = array[index]
+```
+
+## 22. Typealias with Generics
+
+You can simplify complex types using generics
+⛔️ Before:
+```swift
+func login(completion: (Result<Data, Error>) -> Void) {}
+func logout(completion: (Result<Void, Error> -> Void) {} 
+```
+✅ After:
+```swift
+func login(CompletionHandler<Data>) {}
+func logout(CompletionHandler<Void>) {} 
+
+typealias CompletionHandler<Void> = (Result<T, Error>) -> Void
 ```
 
 # Tips
@@ -2182,5 +2199,6 @@ VStack {
 - Swift Package Manager Fetching - https://ahmdyasser.medium.com/why-fetching-packages-using-swift-package-manger-takes-too-much-time-138982a0fba5
 - Localization with String Catalogs - https://medium.com/@mali92390/app-localization-in-ios-string-catalog-part-1-abe5477c07b1
 - Runtime costs of protocol conformance - https://medium.com/geekculture/the-surprising-cost-of-protocol-conformances-in-swift-dfa5db15ac0c
-- Preference Key: https://www.devtechie.com/community/public/posts/231536-preferencekey-preference-modifier-in-swiftui
-- Protocol Conformance Check at Runtime: https://www.emergetools.com/blog/posts/how-order-files-speed-up-protocols
+- Preference Key - https://www.devtechie.com/community/public/posts/231536-preferencekey-preference-modifier-in-swiftui
+- Protocol Conformance Check at Runtime - https://www.emergetools.com/blog/posts/how-order-files-speed-up-protocols
+- Declaring Closures (funny) - https://fuckingclosuresyntax.com/
