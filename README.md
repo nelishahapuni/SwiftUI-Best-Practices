@@ -40,8 +40,9 @@ This documents contains a collection of best practices for SwiftUI, Swift 6 and 
     27. [Preference Key](#27-preference-key)
     28. [Simultaneous Gesture](#28-simultaneous-gesture)
     29. [Entry Macro](#29-entry-macro)
-    30. [Conditional Modifiers](#20-conditional-modifiers)
-    31. [Wrap Text in Symbol](#21-wrap-text-in-symbol)
+    30. [Conditional Modifiers](#30-conditional-modifiers)
+    31. [Wrap Text in Symbol](#31-wrap-text-in-symbol)
+    32. [Monospaced Digit](#32-monospaced-digit)
 
 - [Swift](#swift)
     1. [Optional Downcasting](#1-optional-downcasting)
@@ -1253,6 +1254,29 @@ Image(systemName: "clipboard")
             .multilineTextAlignment(.center)
     }
 ```
+
+## 32. Monospaced Digit
+
+⛔️ Text is not aligned vertically after the digits 
+```swift
+VStack(alignment: .leading) {
+    Button("Delete 111 messages") {}
+    Button("Delete 222 messages") {}
+}
+
+```
+✅ Now the text after the numbers is vertically aligned:
+
+```swift
+VStack(alignment: .leading) {
+    Button("Delete 111 messages") {}
+    Button("Delete 222 messages") {}
+}
+.monospacedDigit()
+
+```
+
+![]() <img src="https://i.ibb.co/Ms2WXgW/Screenshot-2024-09-04-at-18-29-13.png" width=40%>
 
 # Swift
 
