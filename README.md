@@ -67,6 +67,7 @@ This documents contains a collection of best practices for SwiftUI, Swift 6 and 
     20. [Use cases for self, Self and Self.self](#20-use-cases-for-self-Self-and-Self.self)
     21. [Guard Array Index](#21-guard-array-index)
     22. [Typealias with Generics](#22-typealias-with-generics)
+    23. [Use Final to Optimize Performance](#23-use-final-to-optimize-performance)
 
 - [Tips](#tips)
     1. [Remove Cached SwiftUI Previews](#1-remove-cached-swiftui-previews)
@@ -2007,6 +2008,18 @@ func login(CompletionHandler<Data>) {}
 func logout(CompletionHandler<Void>) {} 
 
 typealias CompletionHandler<Void> = (Result<T, Error>) -> Void
+```
+
+## 23. Use Final to Optimize Performance
+Use **final** keyword for all classes which are not inherited from, to use static dispatch for the methods.
+
+✅ After:
+```swift
+final class MyClass {
+    func myFunc() { // <- this function uses static dispatch
+    ...
+    }
+}
 ```
 
 # Tips
