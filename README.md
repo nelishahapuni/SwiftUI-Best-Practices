@@ -88,6 +88,7 @@ This documents contains a collection of best practices for SwiftUI, Swift 6 and 
     16. [Allows Hit Testing](#16-allows-hit-testing)
     17. [Detect Low Power Mode](#17-detect-low-power-mode)
     18. [Compositing Group](#18-compositing-group)
+    19. [Convert Type Properties Into Array](#19-convert-type-properties-into-array)
 
 - [Optimizations](#optimizations)
 
@@ -2217,6 +2218,40 @@ VStack {
     x: 0,
     y: 5
 )
+```
+
+## 19. Convert Type Properties Into Array
+
+If you'd like to access all properties of a type in the form of an array, you can convert it to a mirror. 
+
+```
+struct Sample {
+    let element1: Any
+    let element2: Any
+    let element3: Any
+    let element4: Any? // note: some properties may be optional, use .compactMap to skip them if nil
+}
+
+func convertSampleIntoArray(_ sample: Sample) -> [Mirror.Children] {
+    let sampleChildren = Mirror(reflecting: sample).children
+
+    return sampleChildren
+}
+```
+
+❕ Note, you may want to convert it to a specific type of(e.g. String) before applying String-specific functionality.
+
+```
+func convertSampleIntoArray(_ sample: Sample) -> [String]? {
+    let mirroredSample = Mirror(reflecting: sample).children
+    
+    // Map over the mirrored children, extracting the value and trimming whitespace
+    let sampleComponents = mirroredSample.compactMap { child in
+        (child.value as? String)?.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+    
+    return sampleComponents.isEmpty ? nil : sampleComponents
+}
 ```
 
 # Optimizations
