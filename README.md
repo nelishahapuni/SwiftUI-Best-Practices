@@ -154,10 +154,16 @@ struct ContentView_Previews: PreviewProvider {
     ContentView(isValid: $isValid)
 }
 ```
-✅ Use the provided Binding.constant(*value*) structure. Can be used for *Bool*, *Int*, *Float*, *String*, and etc. types of values. 
+🆗 Use the provided Binding.constant(*value*) structure. Can be used for *Bool*, *Int*, *Float*, *String*, and etc. types of values. 
 ```swift
 struct ContentView_Previews: PreviewProvider {
     ContentView(isValid: Binding.constant(true))
+}
+```
+✅ Access the type directly
+```swift
+struct ContentView_Previews: PreviewProvider {
+    ContentView(isValid: .constant(true))
 }
 ```
 ❕ This is the alternative with #Preview macros, where a @State variable can also be used. Note: that the *static* keyword must be ommitted, since *static* can only be declared on types. Also the view must be returned with a *return* keyword.
