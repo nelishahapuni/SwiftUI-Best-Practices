@@ -160,7 +160,7 @@ struct ContentView_Previews: PreviewProvider {
     ContentView(isValid: Binding.constant(true))
 }
 ```
-✅ Access the type directly
+✅ Access the type directly:
 ```swift
 struct ContentView_Previews: PreviewProvider {
     ContentView(isValid: .constant(true))
@@ -173,10 +173,16 @@ struct ContentView_Previews: PreviewProvider {
     return ContentView(isValid: $isValid)
 }
 ```
-✅ Using Binding.constant(*value*) is still preferred.
+🆗 Using Binding.constant(*value*) is still preferred.
 ```swift
 #Preview {
     ContentView(isValid: Binding.constant(true))
+}
+```
+✅ Access the type directly:
+```swift
+#Preview {
+    ContentView(isValid: .constant(true))
 }
 ```
 *Tags: Binding, Constant, State, Preview, Macros*
